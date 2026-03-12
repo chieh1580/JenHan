@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>搜尋</title>
+  <title>Jhen Han's Google</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -15,7 +15,6 @@
       flex-direction: column;
     }
 
-    /* ── Nav ── */
     nav {
       display: flex;
       justify-content: flex-end;
@@ -39,7 +38,6 @@
     }
     .btn-signin:hover { background: #1765cc; text-decoration: none !important; }
 
-    /* ── Main ── */
     main {
       flex: 1;
       display: flex;
@@ -49,14 +47,16 @@
       padding-bottom: 100px;
     }
 
-    /* Logo */
     .logo {
-      font-size: 72px;
+      font-size: 52px;
       font-weight: 700;
-      letter-spacing: -2px;
+      letter-spacing: -1px;
       margin-bottom: 28px;
       user-select: none;
+      text-align: center;
     }
+    .logo .name { color: #202124; }
+    .logo .apostrophe { color: #202124; }
     .logo span:nth-child(1) { color: #4285f4; }
     .logo span:nth-child(2) { color: #ea4335; }
     .logo span:nth-child(3) { color: #fbbc05; }
@@ -64,7 +64,6 @@
     .logo span:nth-child(5) { color: #34a853; }
     .logo span:nth-child(6) { color: #ea4335; }
 
-    /* Search box */
     .search-wrap {
       position: relative;
       width: 560px;
@@ -110,7 +109,6 @@
     }
     .btn-mic:hover { background: #f1f3f4; }
 
-    /* Buttons */
     .search-actions {
       margin-top: 22px;
       display: flex;
@@ -130,7 +128,6 @@
       border-color: #dadce0;
     }
 
-    /* Language */
     .lang-note {
       margin-top: 22px;
       font-size: 13px;
@@ -139,7 +136,6 @@
     .lang-note a { color: #1a73e8; text-decoration: none; }
     .lang-note a:hover { text-decoration: underline; }
 
-    /* ── Footer ── */
     footer {
       background: #f2f2f2;
       border-top: 1px solid #e4e4e4;
@@ -167,28 +163,23 @@
 </head>
 <body>
 
-  <!-- Nav -->
   <nav>
     <a href="#">Gmail</a>
     <a href="#">圖片</a>
     <a href="#" class="btn-signin">登入</a>
   </nav>
 
-  <!-- Main -->
   <main>
+    <!-- Logo：Jhen Han's + 彩色 Google -->
     <div class="logo">
-      <span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span>
+      <span class="name">Jhen Han's </span><span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span>
     </div>
 
     <div class="search-wrap">
-      <!-- Search icon -->
       <svg class="icon-search" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
       </svg>
-
       <input type="text" id="searchInput" autocomplete="off" aria-label="搜尋">
-
-      <!-- Mic icon -->
       <button class="btn-mic" title="語音搜尋">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zm5.3 11a5.3 5.3 0 0 1-10.6 0H5a7 7 0 0 0 6 6.93V21H9v2h6v-2h-2v-2.07A7 7 0 0 0 19 12h-1.7z"/>
@@ -197,7 +188,7 @@
     </div>
 
     <div class="search-actions">
-      <button onclick="doSearch()">Jhen Han 's Google </button>
+      <button onclick="doSearch()">Jhen Han's Google 搜尋</button>
       <button>好手氣</button>
     </div>
 
@@ -206,7 +197,6 @@
     </div>
   </main>
 
-  <!-- Footer -->
   <footer>
     <div class="footer-top">台灣</div>
     <div class="footer-bottom">
@@ -233,5 +223,4 @@
     });
   </script>
 </body>
-
 </html>
