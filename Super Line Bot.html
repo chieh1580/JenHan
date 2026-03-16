@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>震瀚整合行銷｜24H AI 店長・讓業績自動跑</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --navy:     #06101f;
+      --navy-mid: #0d1f3c;
+      --navy-light: #162a4a;
+      --gold:     #c9993e;
+      --gold-light: #e8c06a;
+      --gold-pale: #f5e6c0;
+      --silver:   #a8b8cc;
+      --silver-light: #dce8f5;
+      --accent-blue: #2255cc;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      background-color: var(--navy);
+      color: #e8edf5;
+      overflow-x: hidden;
+    }
+
+    /* ── Typography ── */
+    .font-serif { font-family: 'Noto Serif TC', serif; }
+
+    /* ── Gold gradient text ── */
+    .text-gold-gradient {
+      background: linear-gradient(135deg, #e8c06a 0%, #c9993e 40%, #f5e6c0 70%, #c9993e 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ── Subtle noise texture overlay ── */
+    .noise-overlay::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Hero diagonal background ── */
+    .hero-bg {
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 10%, rgba(34,85,204,0.25) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 40% at 80% 80%, rgba(201,153,62,0.12) 0%, transparent 60%),
+        linear-gradient(170deg, #06101f 0%, #0d1f3c 50%, #06101f 100%);
+    }
+
+    /* ── Gold divider line ── */
+    .gold-line {
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+
+    /* ── Glowing CTA button ── */
+    .btn-cta {
+      position: relative;
+      background: linear-gradient(135deg, #c9993e 0%, #e8c06a 50%, #c9993e 100%);
+      color: #06101f;
+      font-weight: 700;
+      border-radius: 9999px;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 0 24px rgba(201,153,62,0.5), 0 4px 16px rgba(0,0,0,0.4);
+    }
+    .btn-cta:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 0 40px rgba(201,153,62,0.7), 0 8px 24px rgba(0,0,0,0.5);
+    }
+    .btn-cta:active { transform: scale(0.98); }
+    .btn-cta::after {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.25) 50%, transparent 70%);
+      transform: translateX(-100%);
+      transition: transform 0.5s;
+    }
+    .btn-cta:hover::after { transform: translateX(100%); }
+
+    /* ── Ghost secondary button ── */
+    .btn-ghost {
+      border: 1.5px solid var(--gold);
+      color: var(--gold-light);
+      border-radius: 9999px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .btn-ghost:hover {
+      background: rgba(201,153,62,0.12);
+    }
+
+    /* ── Feature card ── */
+    .feature-card {
+      background: linear-gradient(145deg, rgba(22,42,74,0.9) 0%, rgba(13,31,60,0.95) 100%);
+      border: 1px solid rgba(201,153,62,0.2);
+      border-radius: 1.25rem;
+      transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .feature-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(201,153,62,0.5);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.4), 0 0 20px rgba(201,153,62,0.1);
+    }
+    .feature-card:hover::before { opacity: 1; }
+
+    /* ── Pain card ── */
+    .pain-card {
+      background: rgba(6,16,31,0.8);
+      border: 1px solid rgba(168,184,204,0.15);
+      border-left: 3px solid var(--gold);
+      border-radius: 1rem;
+    }
+
+    /* ── Pricing card ── */
+    .pricing-card {
+      background: linear-gradient(160deg, #0d1f3c 0%, #06101f 100%);
+      border: 1px solid rgba(201,153,62,0.35);
+      border-radius: 1.5rem;
+      box-shadow: 0 0 60px rgba(201,153,62,0.08), 0 24px 60px rgba(0,0,0,0.5);
+      position: relative;
+      overflow: hidden;
+    }
+    .pricing-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 40% at 50% 0%, rgba(201,153,62,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* ── Industry badge ── */
+    .industry-badge {
+      background: rgba(22,42,74,0.7);
+      border: 1px solid rgba(201,153,62,0.25);
+      border-radius: 1rem;
+      transition: background 0.2s, border-color 0.2s, transform 0.2s;
+    }
+    .industry-badge:hover {
+      background: rgba(201,153,62,0.1);
+      border-color: rgba(201,153,62,0.5);
+      transform: scale(1.04);
+    }
+
+    /* ── Floating label ── */
+    .badge-best {
+      background: linear-gradient(135deg, #c9993e, #e8c06a);
+      color: #06101f;
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      border-radius: 9999px;
+      padding: 3px 12px;
+    }
+
+    /* ── Scroll reveal ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── Pulse ring on CTA ── */
+    @keyframes pulse-ring {
+      0%   { box-shadow: 0 0 0 0 rgba(201,153,62,0.5); }
+      70%  { box-shadow: 0 0 0 14px rgba(201,153,62,0); }
+      100% { box-shadow: 0 0 0 0 rgba(201,153,62,0); }
+    }
+    .pulse-ring { animation: pulse-ring 2s infinite; }
+
+    /* ── Floating badge animation ── */
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50%       { transform: translateY(-6px); }
+    }
+    .float-anim { animation: float 3.5s ease-in-out infinite; }
+
+    /* ── Stars / sparkle ── */
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.3; transform: scale(0.8); }
+      50%       { opacity: 1;   transform: scale(1.2); }
+    }
+    .sparkle { animation: twinkle 2.5s ease-in-out infinite; }
+    .sparkle:nth-child(2) { animation-delay: 0.8s; }
+    .sparkle:nth-child(3) { animation-delay: 1.6s; }
+
+    /* ── Hero text stagger ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .hero-title   { animation: fadeUp 0.9s ease both; animation-delay: 0.1s; }
+    .hero-sub     { animation: fadeUp 0.9s ease both; animation-delay: 0.35s; }
+    .hero-desc    { animation: fadeUp 0.9s ease both; animation-delay: 0.55s; }
+    .hero-cta     { animation: fadeUp 0.9s ease both; animation-delay: 0.75s; }
+    .hero-trust   { animation: fadeUp 0.9s ease both; animation-delay: 0.9s; }
+
+    /* ── Grid pattern ── */
+    .grid-pattern {
+      background-image:
+        linear-gradient(rgba(201,153,62,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(201,153,62,0.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--navy); }
+    ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 3px; }
+
+    /* ── Section spacing ── */
+    section { position: relative; }
+
+    /* ── Checklist item ── */
+    .check-item::before {
+      content: '✓';
+      color: var(--gold);
+      font-weight: 900;
+      margin-right: 0.5rem;
+    }
+
+    /* Sticky nav */
+    #sticky-nav {
+      transition: background 0.3s, box-shadow 0.3s;
+    }
+    #sticky-nav.scrolled {
+      background: rgba(6,16,31,0.95);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 2px 20px rgba(0,0,0,0.5);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     STICKY NAV
+══════════════════════════════════════ -->
+<nav id="sticky-nav" class="fixed top-0 left-0 right-0 z-50 py-3 px-5">
+  <div class="max-w-5xl mx-auto flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <span class="font-serif font-black text-lg text-gold-gradient tracking-wider">震瀚</span>
+      <span class="text-silver text-xs hidden sm:block">整合行銷</span>
+    </div>
+    <a href="https://line.me/R/ti/p/@075zqmwq" target="_blank"
+       class="btn-cta text-xs sm:text-sm px-4 py-2 font-bold">
+      免費試用 7 天 →
+    </a>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════
+     HERO SECTION
+══════════════════════════════════════ -->
+<section class="hero-bg noise-overlay grid-pattern min-h-screen flex flex-col justify-center pt-20 pb-16 px-5 relative overflow-hidden">
+
+  <!-- Decorative orbs -->
+  <div class="absolute top-1/4 right-[-10%] w-72 h-72 rounded-full opacity-10"
+       style="background: radial-gradient(circle, #2255cc, transparent);"></div>
+  <div class="absolute bottom-10 left-[-5%] w-56 h-56 rounded-full opacity-8"
+       style="background: radial-gradient(circle, #c9993e, transparent);"></div>
+
+  <!-- Sparkles -->
+  <div class="absolute top-[15%] left-[8%] sparkle text-gold-gradient text-xl">✦</div>
+  <div class="absolute top-[30%] right-[10%] sparkle text-gold-gradient text-sm">✦</div>
+  <div class="absolute bottom-[20%] left-[20%] sparkle text-gold-gradient text-xs">✦</div>
+
+  <div class="relative z-10 max-w-2xl mx-auto text-center">
+
+    <!-- Badge -->
+    <div class="hero-title inline-flex items-center gap-2 mb-5">
+      <span class="badge-best">🤖 AI 驅動・全自動</span>
+    </div>
+
+    <!-- Main headline -->
+    <h1 class="hero-sub font-serif font-black text-4xl sm:text-5xl leading-tight mb-4 text-white">
+      雙手解放，<br/>
+      <span class="text-gold-gradient">業績照跑</span>
+    </h1>
+
+    <!-- Subheadline -->
+    <p class="hero-desc font-serif text-xl sm:text-2xl text-silver-light mb-2 leading-relaxed">
+      24 小時 AI 店長，<br class="sm:hidden"/>幫你守住每一筆訂單
+    </p>
+    <p class="hero-desc text-silver text-sm sm:text-base mb-8 leading-relaxed max-w-md mx-auto" style="color:var(--silver);">
+      即使你滿手泡沫、深夜熟睡，<br/>AI 也為你即時回覆、精準推銷、自動預約。
+    </p>
+
+    <!-- CTA buttons -->
+    <div class="hero-cta flex flex-col sm:flex-row gap-3 justify-center mb-8">
+      <a href="https://line.me/R/ti/p/@075zqmwq" target="_blank"
+         class="btn-cta pulse-ring px-8 py-4 text-base sm:text-lg font-black tracking-wide inline-flex items-center justify-center gap-2">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
+        </svg>
+        立即領取 7 天免費試用
+      </a>
+      <a href="#features" class="btn-ghost px-8 py-4 text-sm sm:text-base font-bold inline-flex items-center justify-center gap-1">
+        了解功能 ↓
+      </a>
+    </div>
+
+    <!-- Trust signals -->
+    <div class="hero-trust flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs" style="color:var(--silver);">
+      <span>✅ 無需綁約・隨時取消</span>
+      <span>✅ 5 分鐘完成設定</span>
+      <span>✅ 專人一對一上線協助</span>
+    </div>
+
+  </div>
+
+  <!-- Floating stat chips -->
+  <div class="relative z-10 max-w-2xl mx-auto mt-12 grid grid-cols-3 gap-3 text-center">
+    <div class="float-anim pain-card rounded-xl py-3 px-2">
+      <div class="text-gold-gradient font-black text-xl font-serif">24H</div>
+      <div class="text-silver text-xs mt-0.5">全天候守護</div>
+    </div>
+    <div class="float-anim pain-card rounded-xl py-3 px-2" style="animation-delay:0.5s;">
+      <div class="text-gold-gradient font-black text-xl font-serif">0 單</div>
+      <div class="text-silver text-xs mt-0.5">漏單不再有</div>
+    </div>
+    <div class="float-anim pain-card rounded-xl py-3 px-2" style="animation-delay:1s;">
+      <div class="text-gold-gradient font-black text-xl font-serif">$100</div>
+      <div class="text-silver text-xs mt-0.5">每天成本</div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ══════════════════════════════════════
+     PAIN POINTS
+══════════════════════════════════════ -->
+<section id="pain" class="py-20 px-5" style="background: linear-gradient(180deg, #06101f 0%, #0a1828 100%);">
+  <div class="max-w-2xl mx-auto">
+
+    <div class="text-center mb-12 reveal">
+      <p class="text-xs uppercase tracking-[0.2em] mb-3" style="color:var(--gold);">老闆的真實心聲</p>
+      <h2 class="font-serif font-black text-3xl sm:text-4xl text-white leading-tight">
+        這些場景，<br/>你是不是很熟悉？
+      </h2>
+      <div class="gold-line w-16 mx-auto mt-6"></div>
+    </div>
+
+    <div class="flex flex-col gap-5">
+
+      <!-- Pain 1 -->
+      <div class="pain-card p-5 reveal">
+        <div class="flex gap-4 items-start">
+          <div class="text-3xl mt-0.5 flex-shrink-0">🧼</div>
+          <div>
+            <h3 class="font-bold text-white text-base mb-1">「手沾滿泡沫，客人已讀不回就跑了⋯」</h3>
+            <p class="text-sm leading-relaxed" style="color:var(--silver);">
+              汽車美容師正在手刷車身、SPA 治療師雙手沾滿精油——一則詢價訊息彈出，你只能無奈看著它沉入已讀。等你洗完手，客人早已聯絡了競業。
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pain 2 -->
+      <div class="pain-card p-5 reveal">
+        <div class="flex gap-4 items-start">
+          <div class="text-3xl mt-0.5 flex-shrink-0">🌙</div>
+          <div>
+            <h3 class="font-bold text-white text-base mb-1">「半夜 2 點的預約，早上才看到⋯已經太晚」</h3>
+            <p class="text-sm leading-relaxed" style="color:var(--silver);">
+              客人習慣睡前滑 LINE 預約，但你早就入睡。隔天起床後才發現 3 則預約訊息，其中 2 則已約了別人。每晚漏掉的，都是白花花的鈔票。
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pain 3 -->
+      <div class="pain-card p-5 reveal">
+        <div class="flex gap-4 items-start">
+          <div class="text-3xl mt-0.5 flex-shrink-0">🔁</div>
+          <div>
+            <h3 class="font-bold text-white text-base mb-1">「每天重複解釋一百遍價目表，累了⋯」</h3>
+            <p class="text-sm leading-relaxed" style="color:var(--silver);">
+              「請問頭頸肩推拿多少？」「精緻洗車跟鍍膜有什麼差？」同樣的問題每天輪播，老闆一個人既要服務客人，又要當客服，精力被榨乾卻無法成長。
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Transition statement -->
+    <div class="text-center mt-12 reveal">
+      <p class="font-serif text-xl sm:text-2xl text-white leading-relaxed">
+        這些問題，<span class="text-gold-gradient font-black">震瀚 AI 一次解決。</span>
+      </p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     FEATURES
+══════════════════════════════════════ -->
+<section id="features" class="py-20 px-5" style="background: #0a1828;">
+  <div class="max-w-2xl mx-auto">
+
+    <div class="text-center mb-12 reveal">
+      <p class="text-xs uppercase tracking-[0.2em] mb-3" style="color:var(--gold);">核心功能</p>
+      <h2 class="font-serif font-black text-3xl sm:text-4xl text-white leading-tight">
+        你的 AI 金牌店長，<br/><span class="text-gold-gradient">三大超能力</span>
+      </h2>
+      <div class="gold-line w-16 mx-auto mt-6"></div>
+    </div>
+
+    <div class="flex flex-col gap-6">
+
+      <!-- Feature 1 -->
+      <div class="feature-card p-6 reveal">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0"
+               style="background: rgba(201,153,62,0.12);">🤖</div>
+          <div>
+            <span class="text-xs font-bold px-2 py-0.5 rounded-full mr-2"
+                  style="background:rgba(201,153,62,0.15); color:var(--gold);">功能 01</span>
+            <h3 class="font-serif font-black text-white text-lg mt-1">24H 智能接待・擬真情商對話</h3>
+          </div>
+        </div>
+        <p class="text-sm leading-relaxed mb-4" style="color:var(--silver);">
+          AI 以「像真人一樣」的溫暖語氣，全天候即時回應客人詢問、報價、服務說明。無論凌晨 3 點還是假日中午，每則訊息都在 5 秒內得到專業回覆，讓客人感受到你對他的重視。
+        </p>
+        <div class="flex flex-wrap gap-2">
+          <span class="text-xs px-3 py-1 rounded-full" style="background:rgba(34,85,204,0.15); color:#7099ee;">自動報價</span>
+          <span class="text-xs px-3 py-1 rounded-full" style="background:rgba(34,85,204,0.15); color:#7099ee;">服務說明</span>
+          <span class="text-xs px-3 py-1 rounded-full" style="background:rgba(34,85,204,0.15); color:#7099ee;">情緒辨識</span>
+          <span class="text-xs px-3 py-1 rounded-full" style="background:rgba(34,85,204,0.15); color:#7099ee;">多輪對話</span>
+        </div>
+      </div>
+
+      <!-- Feature 2 -->
+      <div class="feature-card p-6 reveal">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0"
+               style="background: rgba(201,153,62,0.12);">💰</div>
+          <div>
+            <span class="text-xs font-bold px-2 py-0.5 rounded-full mr-2"
+                  style="background:rgba(201,153,62,0.15); color:var(--gold);">功能 02</span>
+            <h3 class="font-serif font-black text-white text-lg mt-1">精準辨識需求・主動向上推銷</h3>
+          </div>
+        </div>
+        <p class="text-sm leading-relaxed mb-4" style="color:var(--silver);">
+          AI 能聰明識別客人潛在需求，在適當時機自然帶出高單價服務組合。「您這次選的基礎洗車，搭配我們的奈米鍍膜可以保護半年唷～現在同步預約還有優惠！」讓每筆訂單的客單價自動提升。
+        </p>
+        <div class="flex flex-wrap gap-2">
+          <span class="text-xs px-3 py-1 rounded-full" style="background:rgba(34,85,204,0.15); color:#7099ee;">需求辨識</span>
+          <span class="text-xs px-3 py-1 rounded-full" style="background:rgba(34,85,204,0.15); color:#7099ee;">加購推薦</span>
+          <span class="text-xs px-3 py-1 rounded-full" style="background:rgba(34,85,204,0.15); color:#7099ee;">客單提升</span>
+          <span class="text-xs px-3 py-1 rounded-full" style="background:rgba(34,85,204,0.15); color:#7099ee;">優惠組合</span>
+        </div>
+      </div>
+
+      <!-- Feature 3 -->
+      <div class="feature-card p-6 reveal">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0"
+               style="background: rgba(201,153,62,0.12);">📅</div>
+          <div>
+            <span class="text-xs font-bold px-2 py-0.5 rounded-full mr-2"
+                  style="background:rgba(201,153,62,0.15); color:var(--gold);">功能 03</span>
+            <h3 class="font-serif font-black text-white text-lg mt-1">自動預約排程・無縫對接行事曆</h3>
+          </div>
+        </div>
+        <p class="text-sm leading-relaxed mb-4" style="color:var(--silver);">
+          AI 即時確認空擋、協助客人選擇最佳時段，完成預約後自動同步你的排班表，並在預約前傳送提醒訊息降低爽約率。你只要到店服務，不需再花一秒鐘在排程溝通上。
+        </p>
+        <div class="flex flex-wrap gap-2">
+          <span class="text-xs px-3 py-1 rounded-full" style="background:rgba(34,85,204,0.15); color:#7099ee;">智慧排班</span>
+          <span class="text-xs px-3 py-1 rounded-full" style="background:rgba(34,85,204,0.15); color:#7099ee;">自動提醒</span>
+          <span class="text-xs px-3 py-1 rounded-full" style="background:rgba(34,85,204,0.15); color:#7099ee;">降低爽約</span>
+          <span class="text-xs px-3 py-1 rounded-full" style="background:rgba(34,85,204,0.15); color:#7099ee;">行事曆同步</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     HOW IT WORKS (brief)
+══════════════════════════════════════ -->
+<section class="py-16 px-5" style="background: linear-gradient(180deg, #0a1828 0%, #06101f 100%);">
+  <div class="max-w-2xl mx-auto">
+    <div class="text-center mb-10 reveal">
+      <p class="text-xs uppercase tracking-[0.2em] mb-3" style="color:var(--gold);">導入流程</p>
+      <h2 class="font-serif font-black text-2xl sm:text-3xl text-white">只要 3 步驟，今天就能上線</h2>
+    </div>
+    <div class="relative">
+      <!-- vertical line -->
+      <div class="absolute left-6 top-6 bottom-6 w-0.5 hidden sm:block"
+           style="background: linear-gradient(180deg, var(--gold), transparent);"></div>
+      <div class="flex flex-col gap-6">
+        <div class="flex gap-5 items-start reveal">
+          <div class="w-12 h-12 rounded-full flex items-center justify-center font-black text-lg flex-shrink-0 z-10"
+               style="background: linear-gradient(135deg, #c9993e, #e8c06a); color:#06101f;">1</div>
+          <div class="pt-2">
+            <h4 class="font-bold text-white mb-1">加入 LINE 官方帳號</h4>
+            <p class="text-sm" style="color:var(--silver);">掃描 QR Code 或搜尋 @075zqmwq，告訴我們你的店型與服務項目。</p>
+          </div>
+        </div>
+        <div class="flex gap-5 items-start reveal">
+          <div class="w-12 h-12 rounded-full flex items-center justify-center font-black text-lg flex-shrink-0 z-10"
+               style="background: linear-gradient(135deg, #c9993e, #e8c06a); color:#06101f;">2</div>
+          <div class="pt-2">
+            <h4 class="font-bold text-white mb-1">專人協助客製化設定</h4>
+            <p class="text-sm" style="color:var(--silver);">我們的顧問將依你的服務項目、報價與話術偏好，完成 AI 訓練與部署。</p>
+          </div>
+        </div>
+        <div class="flex gap-5 items-start reveal">
+          <div class="w-12 h-12 rounded-full flex items-center justify-center font-black text-lg flex-shrink-0 z-10"
+               style="background: linear-gradient(135deg, #c9993e, #e8c06a); color:#06101f;">3</div>
+          <div class="pt-2">
+            <h4 class="font-bold text-white mb-1">AI 上線，立即接管訊息</h4>
+            <p class="text-sm" style="color:var(--silver);">從此你只需專注服務，AI 自動幫你回覆、推銷、排程——24 小時不停歇。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     TARGET INDUSTRIES
+══════════════════════════════════════ -->
+<section id="industries" class="py-16 px-5" style="background:#06101f;">
+  <div class="max-w-2xl mx-auto">
+
+    <div class="text-center mb-10 reveal">
+      <p class="text-xs uppercase tracking-[0.2em] mb-3" style="color:var(--gold);">適用產業</p>
+      <h2 class="font-serif font-black text-2xl sm:text-3xl text-white">這些行業，<span class="text-gold-gradient">最需要我們</span></h2>
+      <p class="text-sm mt-3 max-w-sm mx-auto" style="color:var(--silver);">只要有用 LINE 接單的實體店，震瀚 AI 就能為你效力。</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+      <div class="industry-badge p-5 text-center reveal">
+        <div class="text-4xl mb-3">🚗</div>
+        <h3 class="font-bold text-white mb-2">汽車美容</h3>
+        <p class="text-xs leading-relaxed" style="color:var(--silver);">洗車、拋光、鍍膜、包膜、隔熱紙——AI 幫你報價、預約、追蹤回頭客。</p>
+      </div>
+
+      <div class="industry-badge p-5 text-center reveal">
+        <div class="text-4xl mb-3">💆</div>
+        <h3 class="font-bold text-white mb-2">SPA 美業</h3>
+        <p class="text-xs leading-relaxed" style="color:var(--silver);">按摩、護膚、美甲、美睫——AI 管理預約排程，客人不再等到不耐煩。</p>
+      </div>
+
+      <div class="industry-badge p-5 text-center reveal">
+        <div class="text-4xl mb-3">🖐</div>
+        <h3 class="font-bold text-white mb-2">整復推拿</h3>
+        <p class="text-xs leading-relaxed" style="color:var(--silver);">傳統整復、運動復健、脊椎調整——AI 完整說明療程差異，提升到診率。</p>
+      </div>
+
+    </div>
+
+    <p class="text-center text-xs mt-8 reveal" style="color:var(--silver);">
+      ＋ 其他以 LINE 為主力接單的在地服務店家，均可適用
+    </p>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     PRICING
+══════════════════════════════════════ -->
+<section id="pricing" class="py-20 px-5" style="background: linear-gradient(180deg, #06101f 0%, #0d1f3c 100%);">
+  <div class="max-w-lg mx-auto">
+
+    <div class="text-center mb-12 reveal">
+      <p class="text-xs uppercase tracking-[0.2em] mb-3" style="color:var(--gold);">方案報價</p>
+      <h2 class="font-serif font-black text-3xl sm:text-4xl text-white leading-tight">
+        比工讀生便宜，<br/><span class="text-gold-gradient">比員工更可靠</span>
+      </h2>
+    </div>
+
+    <div class="pricing-card p-7 sm:p-10 reveal">
+
+      <!-- Top badge -->
+      <div class="text-center mb-6">
+        <span class="badge-best">⭐ 最受歡迎方案</span>
+      </div>
+
+      <!-- Price -->
+      <div class="text-center mb-6">
+        <p class="text-silver text-sm mb-1">每月訂閱費用</p>
+        <div class="flex items-end justify-center gap-1">
+          <span class="text-silver text-lg font-bold">NT$</span>
+          <span class="font-serif font-black text-6xl sm:text-7xl text-gold-gradient leading-none">3,000</span>
+          <span class="text-silver text-lg mb-2 font-bold">/ 月</span>
+        </div>
+        <div class="mt-3 inline-block bg-yellow-900 bg-opacity-40 border border-yellow-700 border-opacity-40 rounded-full px-4 py-1.5">
+          <span class="text-yellow-300 text-sm font-bold">每天只要 100 元 · 比工讀生的時薪還少！</span>
+        </div>
+      </div>
+
+      <div class="gold-line mb-6"></div>
+
+      <!-- Features list -->
+      <ul class="flex flex-col gap-3 mb-8 text-sm">
+        <li class="check-item" style="color:#e8edf5;">24 小時不間斷 LINE 訊息自動回覆</li>
+        <li class="check-item" style="color:#e8edf5;">客製化服務項目與報價知識庫</li>
+        <li class="check-item" style="color:#e8edf5;">智能預約排程與自動提醒系統</li>
+        <li class="check-item" style="color:#e8edf5;">向上推銷話術（加購 / 升級服務）</li>
+        <li class="check-item" style="color:#e8edf5;">每月 AI 對話效果報告（含轉換率）</li>
+        <li class="check-item" style="color:#e8edf5;">專人一對一上線設定支援</li>
+      </ul>
+
+      <!-- Payment notice -->
+      <div class="rounded-xl p-4 mb-6 text-xs leading-relaxed"
+           style="background:rgba(201,153,62,0.07); border: 1px solid rgba(201,153,62,0.2); color:var(--silver);">
+        💳 <strong style="color:var(--gold-light);">付款方式：</strong>訂閱成功後，系統將透過
+        <strong style="color:white;">綠界科技（ECPay）</strong>
+        寄送信用卡定期定額授權連結，完成綁定後每月自動扣款，免記帳日、不怕忘記繳費。
+      </div>
+
+      <!-- CTA -->
+      <a href="https://line.me/R/ti/p/@075zqmwq" target="_blank"
+         class="btn-cta w-full py-4 text-center block text-base font-black tracking-wide">
+        🎁 先免費試用 7 天，再決定是否訂閱
+      </a>
+
+      <p class="text-center text-xs mt-4" style="color:var(--silver);">
+        試用期間不需信用卡 · 無條件取消 · 零風險
+      </p>
+
+    </div>
+
+    <!-- Comparison -->
+    <div class="mt-8 reveal">
+      <p class="text-center text-xs uppercase tracking-widest mb-4" style="color:var(--silver);">你在衡量什麼？</p>
+      <div class="overflow-hidden rounded-xl border" style="border-color:rgba(201,153,62,0.2);">
+        <table class="w-full text-xs sm:text-sm text-center">
+          <thead>
+            <tr style="background:rgba(201,153,62,0.1);">
+              <th class="py-3 px-3 text-left" style="color:var(--gold);">比較項目</th>
+              <th class="py-3 px-3" style="color:var(--gold);">工讀生</th>
+              <th class="py-3 px-3" style="color:var(--gold);">震瀚 AI</th>
+            </tr>
+          </thead>
+          <tbody style="color:#c8d8e8;">
+            <tr style="border-top:1px solid rgba(201,153,62,0.1);">
+              <td class="py-3 px-3 text-left">月費成本</td>
+              <td class="py-3 px-3">NT$2.8萬+</td>
+              <td class="py-3 px-3 font-bold" style="color:var(--gold-light);">NT$3,000</td>
+            </tr>
+            <tr style="border-top:1px solid rgba(201,153,62,0.1); background:rgba(255,255,255,0.02);">
+              <td class="py-3 px-3 text-left">半夜接單</td>
+              <td class="py-3 px-3">❌ 無法</td>
+              <td class="py-3 px-3">✅ 24H</td>
+            </tr>
+            <tr style="border-top:1px solid rgba(201,153,62,0.1);">
+              <td class="py-3 px-3 text-left">主動推銷</td>
+              <td class="py-3 px-3">⚠️ 不穩定</td>
+              <td class="py-3 px-3">✅ 每次必做</td>
+            </tr>
+            <tr style="border-top:1px solid rgba(201,153,62,0.1); background:rgba(255,255,255,0.02);">
+              <td class="py-3 px-3 text-left">請假/離職</td>
+              <td class="py-3 px-3">❌ 會</td>
+              <td class="py-3 px-3">✅ 永不</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     FOOTER CTA
+══════════════════════════════════════ -->
+<footer class="py-16 px-5 text-center relative overflow-hidden"
+        style="background: linear-gradient(180deg, #0d1f3c 0%, #06101f 100%);">
+
+  <!-- Decorative top glow -->
+  <div class="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-px"
+       style="background: linear-gradient(90deg, transparent, var(--gold), transparent);"></div>
+
+  <div class="max-w-lg mx-auto reveal">
+
+    <!-- Logo mark -->
+    <p class="font-serif font-black text-3xl text-gold-gradient mb-2 tracking-wider">震瀚整合行銷</p>
+    <p class="text-xs tracking-widest uppercase mb-8" style="color:var(--silver);">Zhenhan Integrated Marketing</p>
+
+    <p class="font-serif text-2xl sm:text-3xl text-white font-bold mb-3 leading-tight">
+      現在就開始，<br/><span class="text-gold-gradient">讓 AI 幫你衝業績</span>
+    </p>
+    <p class="text-sm mb-8 max-w-xs mx-auto" style="color:var(--silver);">
+      加入 LINE 官方帳號，領取 7 天完整功能免費試用。<br/>試完再決定，完全無壓力。
+    </p>
+
+    <!-- LINE CTA -->
+    <a href="https://line.me/R/ti/p/@075zqmwq" target="_blank"
+       class="btn-cta pulse-ring inline-flex items-center gap-3 px-8 py-4 text-base font-black mb-4">
+      <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
+      </svg>
+      加入 LINE 領取免費試用
+    </a>
+
+    <p class="text-xs mb-10" style="color:var(--silver);">
+      LINE ID：<strong style="color:var(--gold-light);">@075zqmwq</strong>
+    </p>
+
+    <div class="gold-line w-32 mx-auto mb-8"></div>
+
+    <p class="text-xs leading-relaxed" style="color:var(--silver); opacity:0.6;">
+      © 2025 震瀚整合行銷 Zhenhan Integrated Marketing<br/>
+      震撼您的業績，整合您的商機
+    </p>
+  </div>
+
+</footer>
+
+<!-- ══════════════════════════════════════
+     SCRIPTS
+══════════════════════════════════════ -->
+<script>
+  // Sticky nav on scroll
+  const nav = document.getElementById('sticky-nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 40);
+  });
+
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
