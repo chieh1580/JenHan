@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>回客雷達 · 客戶追蹤</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #faf7f4;
+    --surface: #ffffff;
+    --surface2: #f3ede6;
+    --accent: #b5704a;
+    --accent-light: #e8d5c4;
+    --accent-dark: #8a4f2f;
+    --text: #2c1f14;
+    --text-sub: #7a6253;
+    --text-muted: #b09a89;
+    --border: #e0d0c1;
+    --green: #5a8a6a;
+    --green-bg: #eaf3ed;
+    --yellow: #c8923a;
+    --yellow-bg: #fdf4e4;
+    --red: #c05050;
+    --red-bg: #fdeaea;
+    --shadow: 0 2px 16px rgba(44,31,20,0.09);
+    --radius: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 80px;
+    font-size: 14px;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 20px 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .header-logo { font-family: 'Noto Serif TC', serif; font-size: 18px; font-weight: 700; color: var(--accent-dark); flex: 1; }
+  .header-logo span { color: var(--accent); }
+  .header-btn { background: var(--accent); color: white; border: none; border-radius: 10px; padding: 8px 16px; font-size: 13px; font-family: 'Noto Sans TC', sans-serif; cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: 500; }
+
+  /* ── Bottom Nav ── */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex;
+    z-index: 100;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+  .nav-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    padding: 10px 0; gap: 4px; cursor: pointer; color: var(--text-muted);
+    font-size: 11px; transition: color 0.2s;
+    border: none; background: none; font-family: inherit;
+  }
+  .nav-item.active { color: var(--accent); }
+  .nav-icon { font-size: 22px; line-height: 1; }
+
+  /* ── Pages ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── Stats ── */
+  .stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 16px 16px 8px; }
+  .stat-card {
+    background: var(--surface); border-radius: 14px; padding: 14px 10px; text-align: center;
+    box-shadow: var(--shadow); border: 1px solid var(--border);
+  }
+  .stat-num { font-size: 26px; font-weight: 700; font-family: 'Noto Serif TC', serif; color: var(--accent-dark); line-height: 1.1; }
+  .stat-label { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+
+  /* ── Section ── */
+  .section { padding: 8px 16px; }
+  .section-title { font-size: 12px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 10px; }
+
+  /* ── Alert Card (today follow-ups) ── */
+  .alert-card {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+    border-radius: var(--radius); padding: 16px; color: white; margin: 8px 16px;
+    position: relative; overflow: hidden;
+  }
+  .alert-card::after { content: '📞'; font-size: 60px; position: absolute; right: -5px; top: -5px; opacity: 0.15; }
+  .alert-title { font-size: 13px; opacity: 0.85; margin-bottom: 4px; }
+  .alert-count { font-size: 28px; font-weight: 700; font-family: 'Noto Serif TC', serif; }
+  .alert-sub { font-size: 12px; opacity: 0.75; margin-top: 2px; }
+
+  /* ── Client Card ── */
+  .client-card {
+    background: var(--surface); border-radius: var(--radius); padding: 14px 16px;
+    margin-bottom: 10px; box-shadow: var(--shadow); border: 1px solid var(--border);
+    cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;
+    position: relative; overflow: hidden;
+  }
+  .client-card:active { transform: scale(0.98); }
+  .client-card-top { display: flex; align-items: flex-start; gap: 12px; }
+  .client-avatar {
+    width: 42px; height: 42px; border-radius: 50%; background: var(--accent-light);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-family: 'Noto Serif TC', serif; color: var(--accent-dark); font-weight: 700;
+    flex-shrink: 0;
+  }
+  .client-info { flex: 1; min-width: 0; }
+  .client-name { font-weight: 600; font-size: 15px; color: var(--text); }
+  .client-phone { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+  .client-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .tag {
+    display: inline-flex; align-items: center; padding: 3px 8px; border-radius: 20px;
+    font-size: 11px; font-weight: 500;
+  }
+  .tag-date { background: var(--surface2); color: var(--text-sub); }
+  .tag-channel { background: var(--accent-light); color: var(--accent-dark); }
+  .status-badge {
+    padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+    flex-shrink: 0; margin-top: 2px;
+  }
+  .status-new { background: var(--yellow-bg); color: var(--yellow); }
+  .status-follow { background: #e8f0fe; color: #3b5fc0; }
+  .status-done { background: var(--green-bg); color: var(--green); }
+  .status-cold { background: #f0f0f0; color: #888; }
+  .client-preview { font-size: 12px; color: var(--text-sub); margin-top: 8px; line-height: 1.5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .follow-chip { display: flex; align-items: center; gap: 4px; margin-top: 8px; font-size: 11px; }
+  .follow-chip.urgent { color: var(--red); }
+  .follow-chip.normal { color: var(--accent); }
+  .follow-chip.ok { color: var(--green); }
+
+  /* ── Search & Filter ── */
+  .search-bar {
+    padding: 10px 16px; position: sticky; top: 57px; z-index: 90;
+    background: var(--bg); border-bottom: 1px solid var(--border);
+  }
+  .search-input-wrap { position: relative; }
+  .search-input {
+    width: 100%; padding: 10px 16px 10px 38px; border-radius: 12px;
+    border: 1px solid var(--border); background: var(--surface);
+    font-size: 14px; font-family: inherit; color: var(--text); outline: none;
+  }
+  .search-input:focus { border-color: var(--accent); }
+  .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 16px; }
+  .filter-chips { display: flex; gap: 8px; margin-top: 8px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+  .filter-chips::-webkit-scrollbar { display: none; }
+  .filter-chip {
+    padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 500;
+    border: 1px solid var(--border); background: var(--surface); color: var(--text-sub);
+    cursor: pointer; white-space: nowrap; transition: all 0.15s;
+  }
+  .filter-chip.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+  /* ── Form / Modal ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200;
+    display: none; align-items: flex-end;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface); width: 100%; max-height: 92vh; border-radius: 24px 24px 0 0;
+    overflow: hidden; display: flex; flex-direction: column;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .modal-header {
+    padding: 20px 20px 16px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+  }
+  .modal-title { font-family: 'Noto Serif TC', serif; font-size: 17px; font-weight: 700; flex: 1; }
+  .modal-close { background: var(--surface2); border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
+  .modal-body { overflow-y: auto; padding: 16px 20px 24px; flex: 1; }
+  .modal-footer { padding: 12px 20px; border-top: 1px solid var(--border); display: flex; gap: 10px; flex-shrink: 0; }
+
+  /* ── Form Fields ── */
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 12px; font-weight: 600; color: var(--text-sub); margin-bottom: 6px; }
+  .field input, .field select, .field textarea {
+    width: 100%; padding: 11px 14px; border-radius: 12px;
+    border: 1px solid var(--border); background: var(--surface);
+    font-size: 14px; font-family: inherit; color: var(--text); outline: none;
+    transition: border-color 0.15s;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); }
+  .field textarea { resize: none; min-height: 80px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* ── Buttons ── */
+  .btn-primary {
+    flex: 1; padding: 13px; background: var(--accent); color: white; border: none;
+    border-radius: 14px; font-size: 15px; font-weight: 600; font-family: inherit; cursor: pointer;
+  }
+  .btn-secondary {
+    padding: 13px 20px; background: var(--surface2); color: var(--text-sub); border: none;
+    border-radius: 14px; font-size: 14px; font-weight: 500; font-family: inherit; cursor: pointer;
+  }
+  .btn-danger {
+    padding: 10px 16px; background: var(--red-bg); color: var(--red); border: none;
+    border-radius: 12px; font-size: 13px; font-weight: 500; font-family: inherit; cursor: pointer;
+  }
+
+  /* ── Settings Page ── */
+  .settings-card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; margin-bottom: 16px; }
+  .settings-row { padding: 14px 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); }
+  .settings-row:last-child { border-bottom: none; }
+  .settings-icon { font-size: 20px; }
+  .settings-label { flex: 1; }
+  .settings-label-title { font-size: 14px; font-weight: 500; }
+  .settings-label-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .settings-val { font-size: 12px; color: var(--accent); max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .settings-input { width: 100%; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); font-size: 13px; font-family: inherit; outline: none; background: var(--bg); }
+  .settings-input:focus { border-color: var(--accent); }
+
+  /* ── Setup Banner ── */
+  .setup-banner {
+    background: linear-gradient(135deg, #fff8f3, #fdeee4);
+    border: 1px dashed var(--accent); border-radius: var(--radius);
+    padding: 20px; margin: 16px; text-align: center;
+  }
+  .setup-banner h3 { font-family: 'Noto Serif TC', serif; color: var(--accent-dark); margin-bottom: 8px; }
+  .setup-banner p { font-size: 12px; color: var(--text-sub); line-height: 1.7; }
+
+  /* ── Loading ── */
+  .loading { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+  .spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Empty State ── */
+  .empty { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+  .empty-icon { font-size: 48px; margin-bottom: 12px; }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+    background: var(--text); color: white; padding: 10px 20px; border-radius: 20px;
+    font-size: 13px; z-index: 300; opacity: 0; transition: opacity 0.3s;
+    white-space: nowrap; pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
+
+  /* ── Scrollable list ── */
+  .list-container { padding: 8px 16px 0; }
+
+  /* ── Detail view ── */
+  .detail-section { margin-bottom: 16px; }
+  .detail-section-title { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+  .detail-row { display: flex; gap: 8px; margin-bottom: 8px; }
+  .detail-label { font-size: 12px; color: var(--text-muted); min-width: 80px; flex-shrink: 0; padding-top: 1px; }
+  .detail-value { font-size: 14px; color: var(--text); flex: 1; line-height: 1.5; }
+  .detail-box { background: var(--surface2); border-radius: 12px; padding: 12px 14px; font-size: 13px; color: var(--text); line-height: 1.7; }
+
+  /* ── Step guide ── */
+  .step { display: flex; gap: 12px; margin-bottom: 14px; }
+  .step-num { width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: white; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .step-text { font-size: 13px; color: var(--text-sub); line-height: 1.6; }
+  .step-text strong { color: var(--text); }
+
+  .sync-btn { display: flex; align-items: center; gap: 6px; padding: 8px 16px; background: var(--accent-light); color: var(--accent-dark); border: none; border-radius: 10px; font-size: 13px; font-weight: 500; font-family: inherit; cursor: pointer; }
+  .sync-btn:active { opacity: 0.7; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-logo">回客<span>雷達</span></div>
+  <button class="sync-btn" onclick="syncData()">🔄 同步</button>
+  <button class="header-btn" onclick="openAddForm()">＋ 新增</button>
+</div>
+
+<!-- Pages -->
+
+<!-- ─ 首頁 ─ -->
+<div id="page-home" class="page active">
+  <div id="home-content"></div>
+</div>
+
+<!-- ─ 客戶列表 ─ -->
+<div id="page-list" class="page">
+  <div class="search-bar">
+    <div class="search-input-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" id="searchInput" placeholder="搜尋姓名或電話…" oninput="renderList()">
+    </div>
+    <div class="filter-chips" id="filterChips">
+      <div class="filter-chip active" data-filter="all" onclick="setFilter('all',this)">全部</div>
+      <div class="filter-chip" data-filter="新客" onclick="setFilter('新客',this)">🌱 新客</div>
+      <div class="filter-chip" data-filter="追蹤中" onclick="setFilter('追蹤中',this)">📞 追蹤中</div>
+      <div class="filter-chip" data-filter="已成交" onclick="setFilter('已成交',this)">✅ 已成交</div>
+      <div class="filter-chip" data-filter="冷客" onclick="setFilter('冷客',this)">❄️ 冷客</div>
+    </div>
+  </div>
+  <div class="list-container" id="clientList"></div>
+</div>
+
+<!-- ─ 設定 ─ -->
+<div id="page-settings" class="page">
+  <div class="section" style="padding-top:20px">
+    <div class="section-title">Google Sheets 連線設定</div>
+
+    <div class="settings-card">
+      <div class="settings-row" style="flex-direction:column; align-items:flex-start; gap:6px">
+        <div style="font-size:13px; font-weight:600; color:var(--text-sub)">📋 Spreadsheet ID</div>
+        <input class="settings-input" id="sheetId" placeholder="貼上你的 Spreadsheet ID" oninput="saveCfg()">
+        <div style="font-size:11px; color:var(--text-muted)">在 Google Sheet 網址中 /d/ 和 /edit 之間的那段字串</div>
+      </div>
+      <div class="settings-row" style="flex-direction:column; align-items:flex-start; gap:6px">
+        <div style="font-size:13px; font-weight:600; color:var(--text-sub)">🔑 API Key</div>
+        <input class="settings-input" id="apiKey" placeholder="貼上你的 Google API Key" type="password" oninput="saveCfg()">
+      </div>
+      <div class="settings-row" style="flex-direction:column; align-items:flex-start; gap:6px">
+        <div style="font-size:13px; font-weight:600; color:var(--text-sub)">📄 工作表名稱</div>
+        <input class="settings-input" id="sheetName" placeholder="例如：工作表1 或 Sheet1" oninput="saveCfg()">
+      </div>
+    </div>
+
+    <div style="margin-bottom:20px">
+      <div class="section-title">API Key 取得步驟</div>
+      <div style="background:var(--surface); border-radius:var(--radius); border:1px solid var(--border); padding:16px;">
+        <div class="step"><div class="step-num">1</div><div class="step-text">前往 <strong>Google Cloud Console</strong> → 建立或選擇專案</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">啟用 <strong>Google Sheets API</strong></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text">前往「憑證」→ 建立 <strong>API 金鑰</strong></div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-text">把你的 Google Sheet 共用設定改為<strong>「知道連結的人可以編輯」</strong></div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-text">將 API Key 貼入上方欄位，點擊「測試連線」</div></div>
+      </div>
+    </div>
+
+    <button class="btn-primary" style="width:100%; margin-bottom:10px" onclick="testConnection()">🔗 測試連線</button>
+    <button class="btn-secondary" style="width:100%; text-align:center" onclick="clearCache()">🗑 清除快取資料</button>
+  </div>
+</div>
+
+<!-- ─ Bottom Nav ─ -->
+<nav class="bottom-nav">
+  <button class="nav-item active" id="nav-home" onclick="switchPage('home')">
+    <span class="nav-icon">🏠</span>首頁
+  </button>
+  <button class="nav-item" id="nav-list" onclick="switchPage('list')">
+    <span class="nav-icon">👥</span>客戶
+  </button>
+  <button class="nav-item" id="nav-settings" onclick="switchPage('settings')">
+    <span class="nav-icon">⚙️</span>設定
+  </button>
+</nav>
+
+<!-- ─ Add/Edit Modal ─ -->
+<div class="modal-overlay" id="formModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="formTitle">新增客戶</div>
+      <button class="modal-close" onclick="closeModal('formModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-row">
+        <div class="field">
+          <label>來訪日期 *</label>
+          <input type="date" id="f_date">
+        </div>
+        <div class="field">
+          <label>下次追蹤日</label>
+          <input type="date" id="f_follow_date">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>客戶姓名 *</label>
+          <input type="text" id="f_name" placeholder="姓名">
+        </div>
+        <div class="field">
+          <label>聯絡電話</label>
+          <input type="tel" id="f_phone" placeholder="09xx-xxxxxx">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>客源管道</label>
+          <select id="f_channel">
+            <option value="">請選擇</option>
+            <option>Instagram</option>
+            <option>LINE 轉介紹</option>
+            <option>朋友介紹</option>
+            <option>Google 地圖</option>
+            <option>路過</option>
+            <option>老客戶</option>
+            <option>其他</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>狀態</label>
+          <select id="f_status">
+            <option value="新客">🌱 新客</option>
+            <option value="追蹤中">📞 追蹤中</option>
+            <option value="已成交">✅ 已成交</option>
+            <option value="冷客">❄️ 冷客</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>需求與背景</label>
+        <textarea id="f_needs" placeholder="客戶需求、身體狀況、目標…"></textarea>
+      </div>
+      <div class="field">
+        <label>現場抗性與重點備註</label>
+        <textarea id="f_notes" placeholder="當場提出的疑慮、特殊反應、跟進重點…"></textarea>
+      </div>
+      <div class="field">
+        <label>負責人／備註</label>
+        <input type="text" id="f_owner" placeholder="負責老師或額外備註">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('formModal')">取消</button>
+      <button class="btn-primary" id="formSubmitBtn" onclick="submitForm()">儲存並同步</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─ Detail Modal ─ -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="detailName">客戶詳情</div>
+      <button class="modal-close" onclick="closeModal('detailModal')">✕</button>
+    </div>
+    <div class="modal-body" id="detailBody"></div>
+    <div class="modal-footer">
+      <button class="btn-danger" onclick="deleteRecord()">刪除</button>
+      <button class="btn-primary" onclick="editRecord()">✏️ 編輯</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── Config & State ───
+const SPREADSHEET_ID = '123AUEPJ3Qw9VD7pJqmO32SKmpwn84F7g_XVphP7FISI';
+
+let cfg = {
+  sheetId: SPREADSHEET_ID,
+  apiKey: '',
+  sheetName: '工作表1'
+};
+
+let clients = [];
+let currentFilter = 'all';
+let editingRow = null; // 1-based row index in sheet
+
+// ─── Load Config ───
+function loadCfg() {
+  const saved = localStorage.getItem('hklTrackerCfg');
+  if (saved) { try { cfg = { ...cfg, ...JSON.parse(saved) }; } catch {} }
+  document.getElementById('sheetId').value = cfg.sheetId || '';
+  document.getElementById('apiKey').value = cfg.apiKey || '';
+  document.getElementById('sheetName').value = cfg.sheetName || '工作表1';
+}
+
+function saveCfg() {
+  cfg.sheetId = document.getElementById('sheetId').value.trim();
+  cfg.apiKey = document.getElementById('apiKey').value.trim();
+  cfg.sheetName = document.getElementById('sheetName').value.trim() || '工作表1';
+  localStorage.setItem('hklTrackerCfg', JSON.stringify(cfg));
+}
+
+// ─── Navigation ───
+function switchPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.getElementById('nav-' + name).classList.add('active');
+  if (name === 'list') renderList();
+  if (name === 'home') renderHome();
+}
+
+// ─── API Helpers ───
+function apiBase() {
+  return `https://sheets.googleapis.com/v4/spreadsheets/${cfg.sheetId}/values`;
+}
+
+function sheetRange(range) {
+  return `${encodeURIComponent(cfg.sheetName)}!${range}`;
+}
+
+async function fetchRows() {
+  if (!cfg.apiKey) return null;
+  const url = `${apiBase()}/${sheetRange('A:I')}?key=${cfg.apiKey}`;
+  const res = await fetch(url);
+  if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || '讀取失敗'); }
+  return (await res.json()).values || [];
+}
+
+async function appendRow(row) {
+  const url = `${apiBase()}/${sheetRange('A:I')}:append?valueInputOption=USER_ENTERED&key=${cfg.apiKey}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ values: [row] })
+  });
+  if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || '新增失敗'); }
+}
+
+async function updateRow(rowIndex, row) {
+  const range = sheetRange(`A${rowIndex}:I${rowIndex}`);
+  const url = `${apiBase()}/${range}?valueInputOption=USER_ENTERED&key=${cfg.apiKey}`;
+  const res = await fetch(url, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ values: [row] })
+  });
+  if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || '更新失敗'); }
+}
+
+async function deleteRow(rowIndex) {
+  // Clear the row content
+  const range = sheetRange(`A${rowIndex}:I${rowIndex}`);
+  const url = `${apiBase()}/${range}/clear?key=${cfg.apiKey}`;
+  const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+  if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || '刪除失敗'); }
+}
+
+// ─── Data Parsing ───
+function parseClients(rows) {
+  if (!rows || rows.length < 2) return [];
+  return rows.slice(1).map((r, i) => ({
+    rowIndex: i + 2, // 1-based, skip header
+    date: r[0] || '',
+    name: r[1] || '',
+    phone: r[2] || '',
+    channel: r[3] || '',
+    status: r[4] || '',
+    needs: r[5] || '',
+    notes: r[6] || '',
+    followDate: r[7] || '',
+    owner: r[8] || ''
+  })).filter(c => c.name);
+}
+
+function rowFromClient(c) {
+  return [c.date, c.name, c.phone, c.channel, c.status, c.needs, c.notes, c.followDate, c.owner];
+}
+
+// ─── Sync ───
+async function syncData() {
+  if (!cfg.apiKey) { showToast('⚠️ 請先在設定中填入 API Key'); switchPage('settings'); return; }
+  showToast('🔄 同步中…');
+  try {
+    const rows = await fetchRows();
+    clients = parseClients(rows);
+    localStorage.setItem('hklClients', JSON.stringify(clients));
+    showToast(`✅ 同步完成，共 ${clients.length} 筆`);
+    renderHome();
+    if (document.getElementById('page-list').classList.contains('active')) renderList();
+  } catch (e) { showToast('❌ ' + e.message); }
+}
+
+function loadCache() {
+  const c = localStorage.getItem('hklClients');
+  if (c) { try { clients = JSON.parse(c); } catch {} }
+}
+
+function clearCache() {
+  localStorage.removeItem('hklClients');
+  clients = [];
+  showToast('快取已清除');
+  renderHome();
+}
+
+// ─── Follow-up helpers ───
+function daysUntil(dateStr) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr); const today = new Date();
+  today.setHours(0,0,0,0); d.setHours(0,0,0,0);
+  return Math.round((d - today) / 86400000);
+}
+
+function followChip(c) {
+  const days = daysUntil(c.followDate);
+  if (days === null) return '';
+  if (days < 0) return `<div class="follow-chip urgent">🔴 追蹤逾期 ${-days} 天</div>`;
+  if (days === 0) return `<div class="follow-chip urgent">🔴 今天要追蹤</div>`;
+  if (days <= 3) return `<div class="follow-chip normal">🟡 ${days} 天後追蹤</div>`;
+  return `<div class="follow-chip ok">🟢 ${days} 天後追蹤</div>`;
+}
+
+// ─── Status helpers ───
+function statusClass(s) {
+  if (s === '已成交') return 'status-done';
+  if (s === '追蹤中') return 'status-follow';
+  if (s === '冷客') return 'status-cold';
+  return 'status-new';
+}
+
+// ─── Home Render ───
+function renderHome() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const todayStr = today.toISOString().split('T')[0];
+
+  const total = clients.length;
+  const followToday = clients.filter(c => c.followDate === todayStr).length;
+  const overdue = clients.filter(c => { const d = daysUntil(c.followDate); return d !== null && d < 0; }).length;
+  const newOnes = clients.filter(c => c.status === '新客').length;
+
+  // Upcoming follow-ups
+  const upcoming = clients
+    .filter(c => c.followDate)
+    .sort((a,b) => a.followDate.localeCompare(b.followDate))
+    .slice(0, 5);
+
+  let html = '';
+
+  // Stats
+  html += `<div class="stats-row">
+    <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">總客戶</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--green)">${clients.filter(c=>c.status==='已成交').length}</div><div class="stat-label">已成交</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--red)">${overdue}</div><div class="stat-label">逾期追蹤</div></div>
+  </div>`;
+
+  // Alert
+  if (followToday > 0) {
+    html += `<div class="alert-card">
+      <div class="alert-title">今日需要追蹤</div>
+      <div class="alert-count">${followToday} 位客戶</div>
+      <div class="alert-sub">立即查看聯絡資訊</div>
+    </div>`;
+  }
+
+  // Upcoming
+  html += `<div class="section">
+    <div class="section-title">即將追蹤</div>`;
+  if (upcoming.length === 0) {
+    html += `<div style="text-align:center; color:var(--text-muted); font-size:13px; padding:20px 0">暫無排程追蹤</div>`;
+  } else {
+    upcoming.forEach(c => {
+      html += clientCardHTML(c);
+    });
+  }
+  html += `</div>`;
+
+  if (!cfg.apiKey) {
+    html += `<div class="setup-banner">
+      <h3>⚡ 連線 Google Sheet</h3>
+      <p>前往「設定」填入 API Key 和 Spreadsheet ID<br>即可讀取並同步你的客戶資料</p>
+      <button class="btn-primary" style="margin-top:12px" onclick="switchPage('settings')">前往設定</button>
+    </div>`;
+  }
+
+  document.getElementById('home-content').innerHTML = html;
+}
+
+function clientCardHTML(c) {
+  const initials = c.name.charAt(0) || '?';
+  const needsPreview = c.needs ? c.needs.substring(0, 40) + (c.needs.length > 40 ? '…' : '') : '';
+  return `<div class="client-card" onclick="openDetail(${c.rowIndex})">
+    <div class="client-card-top">
+      <div class="client-avatar">${initials}</div>
+      <div class="client-info">
+        <div class="client-name">${c.name}</div>
+        <div class="client-phone">${c.phone || '未填電話'}</div>
+      </div>
+      <div class="status-badge ${statusClass(c.status)}">${c.status || '新客'}</div>
+    </div>
+    <div class="client-meta">
+      ${c.date ? `<div class="tag tag-date">📅 ${c.date}</div>` : ''}
+      ${c.channel ? `<div class="tag tag-channel">${c.channel}</div>` : ''}
+    </div>
+    ${needsPreview ? `<div class="client-preview">${needsPreview}</div>` : ''}
+    ${followChip(c)}
+  </div>`;
+}
+
+// ─── List Render ───
+function setFilter(f, el) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderList();
+}
+
+function renderList() {
+  const q = (document.getElementById('searchInput').value || '').toLowerCase();
+  let filtered = clients.filter(c => {
+    const matchQ = !q || c.name.includes(q) || c.phone.includes(q);
+    const matchF = currentFilter === 'all' || c.status === currentFilter;
+    return matchQ && matchF;
+  });
+  // Sort: overdue first, then by follow date, then by name
+  filtered.sort((a,b) => {
+    const da = daysUntil(a.followDate) ?? 9999;
+    const db = daysUntil(b.followDate) ?? 9999;
+    return da - db;
+  });
+
+  const el = document.getElementById('clientList');
+  if (filtered.length === 0) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><div>找不到符合的客戶</div></div>`;
+    return;
+  }
+  el.innerHTML = filtered.map(c => clientCardHTML(c)).join('');
+}
+
+// ─── Detail Modal ───
+function openDetail(rowIndex) {
+  const c = clients.find(x => x.rowIndex === rowIndex);
+  if (!c) return;
+  editingRow = rowIndex;
+  document.getElementById('detailName').textContent = c.name;
+
+  let html = `
+    <div class="detail-section">
+      <div class="detail-section-title">基本資訊</div>
+      <div class="detail-row"><div class="detail-label">來訪日期</div><div class="detail-value">${c.date || '—'}</div></div>
+      <div class="detail-row"><div class="detail-label">聯絡電話</div>
+        <div class="detail-value">
+          ${c.phone ? `<a href="tel:${c.phone}" style="color:var(--accent); text-decoration:none">${c.phone} 📞</a>` : '—'}
+        </div>
+      </div>
+      <div class="detail-row"><div class="detail-label">客源管道</div><div class="detail-value">${c.channel || '—'}</div></div>
+      <div class="detail-row"><div class="detail-label">狀態</div><div class="detail-value"><span class="status-badge ${statusClass(c.status)}">${c.status || '—'}</span></div></div>
+      <div class="detail-row"><div class="detail-label">下次追蹤</div><div class="detail-value">${c.followDate || '—'} ${followChip(c)}</div></div>
+      <div class="detail-row"><div class="detail-label">負責人</div><div class="detail-value">${c.owner || '—'}</div></div>
+    </div>`;
+
+  if (c.needs) html += `<div class="detail-section">
+    <div class="detail-section-title">需求與背景</div>
+    <div class="detail-box">${c.needs}</div>
+  </div>`;
+
+  if (c.notes) html += `<div class="detail-section">
+    <div class="detail-section-title">現場抗性與重點備註</div>
+    <div class="detail-box">${c.notes}</div>
+  </div>`;
+
+  document.getElementById('detailBody').innerHTML = html;
+  document.getElementById('detailModal').classList.add('open');
+}
+
+function editRecord() {
+  const c = clients.find(x => x.rowIndex === editingRow);
+  if (!c) return;
+  closeModal('detailModal');
+  openEditForm(c);
+}
+
+async function deleteRecord() {
+  if (!confirm(`確定要刪除這筆資料嗎？`)) return;
+  try {
+    await deleteRow(editingRow);
+    clients = clients.filter(c => c.rowIndex !== editingRow);
+    localStorage.setItem('hklClients', JSON.stringify(clients));
+    closeModal('detailModal');
+    showToast('✅ 已刪除');
+    renderHome(); renderList();
+  } catch(e) { showToast('❌ ' + e.message); }
+}
+
+// ─── Form ───
+function openAddForm() {
+  editingRow = null;
+  document.getElementById('formTitle').textContent = '新增客戶';
+  document.getElementById('formSubmitBtn').textContent = '儲存並同步';
+  clearForm();
+  document.getElementById('f_date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('formModal').classList.add('open');
+}
+
+function openEditForm(c) {
+  editingRow = c.rowIndex;
+  document.getElementById('formTitle').textContent = '編輯客戶資料';
+  document.getElementById('formSubmitBtn').textContent = '更新並同步';
+  document.getElementById('f_date').value = c.date;
+  document.getElementById('f_name').value = c.name;
+  document.getElementById('f_phone').value = c.phone;
+  document.getElementById('f_channel').value = c.channel;
+  document.getElementById('f_status').value = c.status;
+  document.getElementById('f_needs').value = c.needs;
+  document.getElementById('f_notes').value = c.notes;
+  document.getElementById('f_follow_date').value = c.followDate;
+  document.getElementById('f_owner').value = c.owner;
+  document.getElementById('formModal').classList.add('open');
+}
+
+function clearForm() {
+  ['f_date','f_name','f_phone','f_channel','f_status','f_needs','f_notes','f_follow_date','f_owner']
+    .forEach(id => {
+      const el = document.getElementById(id);
+      if (el.tagName === 'SELECT') el.selectedIndex = 0;
+      else el.value = '';
+    });
+}
+
+async function submitForm() {
+  const name = document.getElementById('f_name').value.trim();
+  if (!name) { showToast('⚠️ 請填入客戶姓名'); return; }
+  if (!cfg.apiKey) { showToast('⚠️ 請先設定 API Key'); return; }
+
+  const row = [
+    document.getElementById('f_date').value,
+    name,
+    document.getElementById('f_phone').value,
+    document.getElementById('f_channel').value,
+    document.getElementById('f_status').value,
+    document.getElementById('f_needs').value,
+    document.getElementById('f_notes').value,
+    document.getElementById('f_follow_date').value,
+    document.getElementById('f_owner').value
+  ];
+
+  const btn = document.getElementById('formSubmitBtn');
+  btn.textContent = '同步中…'; btn.disabled = true;
+
+  try {
+    if (editingRow) {
+      await updateRow(editingRow, row);
+      const idx = clients.findIndex(c => c.rowIndex === editingRow);
+      if (idx > -1) {
+        clients[idx] = { rowIndex: editingRow, date: row[0], name: row[1], phone: row[2], channel: row[3], status: row[4], needs: row[5], notes: row[6], followDate: row[7], owner: row[8] };
+      }
+      showToast('✅ 已更新');
+    } else {
+      await appendRow(row);
+      // Add to local cache with estimated rowIndex
+      const newRow = { rowIndex: clients.length + 2, date: row[0], name: row[1], phone: row[2], channel: row[3], status: row[4], needs: row[5], notes: row[6], followDate: row[7], owner: row[8] };
+      clients.push(newRow);
+      showToast('✅ 已新增');
+    }
+    localStorage.setItem('hklClients', JSON.stringify(clients));
+    closeModal('formModal');
+    renderHome(); renderList();
+  } catch(e) { showToast('❌ ' + e.message); }
+  finally { btn.textContent = editingRow ? '更新並同步' : '儲存並同步'; btn.disabled = false; }
+}
+
+// ─── Test Connection ───
+async function testConnection() {
+  saveCfg();
+  if (!cfg.apiKey) { showToast('請先填入 API Key'); return; }
+  showToast('🔗 測試中…');
+  try {
+    const rows = await fetchRows();
+    clients = parseClients(rows);
+    localStorage.setItem('hklClients', JSON.stringify(clients));
+    showToast(`✅ 連線成功！讀到 ${clients.length} 筆客戶資料`);
+    renderHome();
+  } catch(e) { showToast('❌ 連線失敗：' + e.message); }
+}
+
+// ─── Modals ───
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+// Click outside to close
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
+});
+
+// ─── Toast ───
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ─── Init ───
+loadCfg();
+loadCache();
+renderHome();
+</script>
+</body>
+</html>
