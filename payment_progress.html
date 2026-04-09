@@ -153,8 +153,8 @@ tr.buyer-sep td { border-top: 2px solid var(--border); }
 }
 .modal-overlay.hidden { display: none; }
 .modal-sheet {
-  background: #fff; width: 100%; max-width: 500px;
-  border-radius: 16px 16px 0 0; padding: 18px 16px 30px;
+  background: #fff; width: 100%; max-width: 360px;
+  border-radius: 16px 16px 0 0; padding: 16px 14px 28px;
   max-height: 88vh; overflow-y: auto;
 }
 .modal-handle { width: 36px; height: 4px; background: #d1d5db; border-radius: 2px; margin: 0 auto 14px; }
@@ -193,8 +193,8 @@ tr.buyer-sep td { border-top: 2px solid var(--border); }
 .smr-fields { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; }
 .smf { display: flex; flex-direction: column; gap: 2px; }
 .smf label { font-size: 10px; color: var(--soft); font-weight: 600; }
-.smf input { border: 1.5px solid var(--border); border-radius: 5px; padding: 6px 7px; font-size: 12px; font-family: 'Noto Sans TC', sans-serif; outline: none; }
-.smf input:focus { border-color: #1a1a1a; }
+.smf input, .smf select { border: 1.5px solid var(--border); border-radius: 5px; padding: 6px 7px; font-size: 12px; font-family: 'Noto Sans TC', sans-serif; outline: none; width: 100%; background: #fff; }
+.smf input:focus, .smf select:focus { border-color: #1a1a1a; }
 .modal-btns { display: flex; gap: 8px; margin-top: 16px; }
 .modal-btns button { flex: 1; padding: 12px; border: none; border-radius: 9px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: 'Noto Sans TC', sans-serif; }
 .btn-save { background: #1a1a1a; color: #fff; }
@@ -427,7 +427,13 @@ function buildUnit(unit){
       <td class="row-lbl">付款方式</td>
       ${STAGES.map(s=>{
         const st=fl.stages[s]; const cls=st.paid?'paid':'unpaid';
-        return `<td class="stage-cell ${cls}"><input value="${st.method||''}" placeholder="—" onchange="upd('${uid}',${fi},'${s}','method',this.value)" oninput="markChanged()"></td>`;
+        return `<td class="stage-cell ${cls}"><select style="width:100%;border:none;background:transparent;font-size:12px;font-family:'Noto Sans TC',sans-serif;text-align:center;outline:none;height:32px;padding:0 4px;" onchange="upd('${uid}',${fi},'${s}','method',this.value)" oninput="markChanged()">
+            <option value="">—</option>
+            <option value="現金" ${st.method==='現金'?'selected':''}>現金</option>
+            <option value="匯款" ${st.method==='匯款'?'selected':''}>匯款</option>
+            <option value="票據" ${st.method==='票據'?'selected':''}>票據</option>
+            <option value="貸款" ${st.method==='貸款'?'selected':''}>貸款</option>
+          </select></td>`;
       }).join('')}
     </tr>`;
     // Row 5: 付款日期
@@ -475,7 +481,15 @@ function openModal(uid,fi){
       </div>
       <div class="smr-fields">
         <div class="smf"><label>金額</label><input id="sm-a-${s.replace('/','_')}" value="${st.amount||''}"></div>
-        <div class="smf"><label>付款方式</label><input id="sm-m-${s.replace('/','_')}" value="${st.method||''}"></div>
+        <div class="smf"><label>付款方式</label>
+          <select id="sm-m-${s.replace('/','_')}">
+            <option value="">—</option>
+            <option value="現金" ${st.method==='現金'?'selected':''}>現金</option>
+            <option value="匯款" ${st.method==='匯款'?'selected':''}>匯款</option>
+            <option value="票據" ${st.method==='票據'?'selected':''}>票據</option>
+            <option value="貸款" ${st.method==='貸款'?'selected':''}>貸款</option>
+          </select>
+        </div>
         <div class="smf"><label>付款日期</label><input id="sm-d-${s.replace('/','_')}" value="${st.date||''}"></div>
       </div>
     </div>`;
