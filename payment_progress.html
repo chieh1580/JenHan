@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>勤源青松居 付款進度表</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #1a1a1a;
+  --soft: #6b7280;
+  --border: #d1cfc8;
+  --bg: #f2efe9;
+  --green: #15803d;
+  --red: #b91c1c;
+  --header: #1c1c1c;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); font-family: 'Noto Sans TC', sans-serif; color: var(--ink); }
+
+.top-bar {
+  background: var(--header); color: #fff;
+  padding: 14px 16px 10px; position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.top-bar h1 { font-size: 16px; font-weight: 700; letter-spacing: 0.05em; }
+.top-bar p { font-size: 11px; color: #9ca3af; margin-top: 2px; font-family: 'IBM Plex Mono', monospace; }
+
+.page { padding: 14px 0 80px; }
+
+.unit-block {
+  margin: 0 12px 20px;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1.5px solid var(--border);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+}
+.unit-title-row {
+  padding: 9px 12px;
+  font-weight: 700; font-size: 13px; color: #fff;
+  display: flex; align-items: center; gap: 6px;
+}
+.unit-title-row.double { background: #991b1b; }
+.unit-title-row.single { background: #1e40af; }
+.unit-tag { font-size: 10px; background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 3px; font-weight: 500; }
+.area-tag { font-size: 10px; background: rgba(255,255,255,0.12); padding: 2px 7px; border-radius: 3px; font-weight: 400; font-family: 'IBM Plex Mono', monospace; line-height: 1.6; }
+
+.tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+table { border-collapse: collapse; min-width: 680px; width: 100%; }
+
+/* LEFT INFO COLUMN */
+td.info-col {
+  min-width: 120px; max-width: 140px;
+  vertical-align: top;
+  border-right: 2px solid var(--border);
+  position: sticky; left: 0; z-index: 10;
+  background: #fafaf8;
+}
+.info-cell {
+  padding: 10px 10px;
+  display: flex; flex-direction: column; gap: 3px;
+  height: 100%;
+}
+.floor-badge {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; font-weight: 700;
+  background: #1a1a1a; color: #fff;
+  padding: 2px 6px; border-radius: 3px;
+  display: inline-block; align-self: flex-start;
+}
+.buyer-name { font-weight: 700; font-size: 13px; margin-top: 4px; }
+.price-txt { font-size: 12px; color: var(--soft); font-family: 'IBM Plex Mono', monospace; }
+.area-txt { font-size: 10px; color: var(--soft); font-family: 'IBM Plex Mono', monospace; margin-top: 1px; line-height: 1.4; }
+.area-txt b { color: var(--ink); font-weight: 700; }
+.loan-tag { font-size: 10px; background: #dbeafe; color: #1e40af; padding: 2px 5px; border-radius: 3px; margin-top: 2px; line-height: 1.5; }
+.warn-tag { font-size: 10px; background: #fee2e2; color: #b91c1c; padding: 2px 5px; border-radius: 3px; margin-top: 2px; line-height: 1.5; }
+.edit-btn {
+  margin-top: 8px; padding: 5px 0;
+  background: #f3f4f6; border: 1.5px solid var(--border);
+  border-radius: 6px; font-size: 11px; font-weight: 700;
+  cursor: pointer; font-family: 'Noto Sans TC', sans-serif;
+  color: var(--ink); width: 100%; text-align: center;
+}
+.edit-btn:active { background: #e5e7eb; }
+.unsold-txt { font-size: 11px; color: #b0aba3; font-style: italic; padding: 16px 10px; }
+
+/* STAGE CELLS */
+td.stage-cell {
+  border-left: 1px solid #e5e2db;
+  border-bottom: 1px solid #e5e2db;
+  min-width: 96px;
+  vertical-align: middle;
+}
+td.stage-cell.paid   { background: #f0fdf4; }
+td.stage-cell.unpaid { background: #fff9f9; }
+td.stage-cell.empty  { background: #fafafa; }
+
+/* CHECK ROW */
+td.check-cell {
+  border-left: 1px solid #e5e2db;
+  border-bottom: 2px solid var(--border);
+  text-align: center;
+  padding: 6px 4px;
+  font-size: 18px;
+  line-height: 1;
+}
+td.check-cell.paid   { background: #dcfce7; color: var(--green); }
+td.check-cell.unpaid { background: #fff0f0; color: transparent; user-select:none; }
+td.check-cell.empty  { background: #fafafa; }
+
+/* STAGE NAME ROW */
+td.name-cell {
+  border-left: 1px solid #e5e2db;
+  border-bottom: 2px solid var(--border);
+  text-align: center;
+  font-size: 11.5px; font-weight: 700;
+  padding: 5px 6px;
+}
+td.name-cell.paid   { background: #dcfce7; color: var(--green); }
+td.name-cell.unpaid { background: #fff0f0; color: var(--red); }
+td.name-cell.empty  { background: #f3f4f6; color: var(--soft); }
+
+/* ROW LABEL */
+td.row-lbl {
+  font-size: 10px; color: var(--soft); font-weight: 600;
+  padding: 0 8px 0 10px;
+  text-align: right; white-space: nowrap;
+  background: #fafaf8;
+  position: sticky; left: 0; z-index: 10;
+  border-right: 2px solid var(--border);
+  border-bottom: 1px solid #e5e2db;
+  height: 32px;
+}
+
+td.stage-cell input {
+  width: 100%; border: none; outline: none; background: transparent;
+  font-family: 'Noto Sans TC', sans-serif;
+  font-size: 12px; color: var(--ink);
+  padding: 5px 7px; text-align: center;
+  height: 32px;
+}
+td.stage-cell input::placeholder { color: #c4bdb0; font-size: 10.5px; }
+td.stage-cell input:focus { background: #fffbeb; }
+
+tr.buyer-sep td { border-top: 2px solid var(--border); }
+
+/* MODAL */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  z-index: 200; display: flex; align-items: flex-end; justify-content: center;
+}
+.modal-overlay.hidden { display: none; }
+.modal-sheet {
+  background: #fff; width: 100%; max-width: 500px;
+  border-radius: 16px 16px 0 0; padding: 18px 16px 30px;
+  max-height: 88vh; overflow-y: auto;
+}
+.modal-handle { width: 36px; height: 4px; background: #d1d5db; border-radius: 2px; margin: 0 auto 14px; }
+.modal-title { font-size: 15px; font-weight: 700; margin-bottom: 14px; }
+.modal-section { font-size: 10.5px; color: var(--soft); font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; margin: 14px 0 8px; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+.field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.field { display: flex; flex-direction: column; gap: 3px; }
+.field.full { grid-column: 1/-1; }
+.field label { font-size: 10.5px; color: var(--soft); font-weight: 700; }
+.field input, .field select, .field textarea {
+  border: 1.5px solid var(--border); border-radius: 7px;
+  padding: 8px 10px; font-size: 13px;
+  font-family: 'Noto Sans TC', sans-serif; color: var(--ink);
+  outline: none;
+}
+.field input:focus, .field select:focus, .field textarea:focus { border-color: #1a1a1a; }
+.field textarea { resize: vertical; min-height: 44px; font-size: 12px; }
+
+.stage-rows { display: flex; flex-direction: column; gap: 7px; }
+.smr {
+  border: 1.5px solid var(--border); border-radius: 8px; padding: 9px 10px 8px;
+  background: #fafaf8;
+}
+.smr.paid { background: #f0fdf4; border-color: #86efac; }
+.smr-head { font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px; margin-bottom: 7px; }
+.paid-toggle { margin-left: auto; display: flex; gap: 4px; }
+.paid-toggle button {
+  padding: 3px 10px; border: none; border-radius: 5px;
+  font-size: 11px; font-weight: 700; cursor: pointer;
+  font-family: 'Noto Sans TC', sans-serif;
+}
+.btn-p { background: #dcfce7; color: var(--green); }
+.btn-p.on { background: var(--green); color: #fff; }
+.btn-u { background: #fee2e2; color: var(--red); }
+.btn-u.on { background: var(--red); color: #fff; }
+.smr-fields { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; }
+.smf { display: flex; flex-direction: column; gap: 2px; }
+.smf label { font-size: 10px; color: var(--soft); font-weight: 600; }
+.smf input { border: 1.5px solid var(--border); border-radius: 5px; padding: 6px 7px; font-size: 12px; font-family: 'Noto Sans TC', sans-serif; outline: none; }
+.smf input:focus { border-color: #1a1a1a; }
+.modal-btns { display: flex; gap: 8px; margin-top: 16px; }
+.modal-btns button { flex: 1; padding: 12px; border: none; border-radius: 9px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: 'Noto Sans TC', sans-serif; }
+.btn-save { background: #1a1a1a; color: #fff; }
+.btn-cancel { background: #f3f4f6; color: #374151; }
+
+.save-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: #1a1a1a; color: #fff;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px; z-index: 50;
+}
+.save-bar span { font-size: 12px; color: #9ca3af; }
+.save-bar button { background: #fff; color: #1a1a1a; border: none; border-radius: 6px; padding: 7px 20px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'Noto Sans TC', sans-serif; }
+.toast { position: fixed; top: 68px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: #fff; padding: 8px 18px; border-radius: 8px; font-size: 13px; z-index: 300; opacity: 0; transition: opacity 0.25s; pointer-events: none; white-space: nowrap; }
+.toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <h1>勤源青松居 ／ 付款進度表</h1>
+  <p id="last-saved">—</p>
+</div>
+
+<div class="page" id="page"></div>
+
+<div class="modal-overlay hidden" id="modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-title">編輯</div>
+    <div class="modal-section">買方資料</div>
+    <div class="field-grid">
+      <div class="field"><label>買方姓名</label><input id="m-buyer" type="text" placeholder="姓名"></div>
+      <div class="field"><label>成交價（萬）</label><input id="m-price" type="text" inputmode="decimal" placeholder="如：315"></div>
+      <div class="field full"><label>貸款資訊</label><input id="m-loan" type="text" placeholder="銀行 ／ 金額"></div>
+      <div class="field full"><label>備註 ／ 待處理事項</label><textarea id="m-warn" rows="2"></textarea></div>
+    </div>
+    <div class="modal-section">付款狀態</div>
+    <div class="stage-rows" id="stage-rows"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">取消</button>
+      <button class="btn-save" onclick="saveModal()">儲存</button>
+    </div>
+  </div>
+</div>
+
+<div class="save-bar">
+  <span id="save-hint">資料儲存於此裝置</span>
+  <button onclick="saveAll()">💾 儲存</button>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const STAGES = ["訂金","簽約款","用印款","完稅款","過戶款/貸款","交屋尾款"];
+
+const INIT = {units:[
+  {id:"A1",label:"A1 ／ 35號",type:"double",private:"11.68",public:"7.36",total:"19.04",
+   floors:[{f:"2F",sold:false},{f:"3F",sold:false},{f:"4F",sold:false},{f:"5F",sold:false}]},
+  {id:"A2",label:"A2 ／ 37號",type:"single",private:"5.81",public:"3.66",total:"9.47",
+   floors:[
+    {f:"2F",sold:true,buyer:"陳冠瑜",price:"315",loan:"淡水一信（預計貸款189萬）",warn:"",stages:{
+      "訂金":{paid:true,amount:"",method:"",date:""},
+      "簽約款":{paid:true,amount:"",method:"",date:""},
+      "用印款":{paid:true,amount:"",method:"",date:""},
+      "完稅款":{paid:false,amount:"",method:"",date:""},
+      "過戶款/貸款":{paid:false,amount:"189萬",method:"淡水一信",date:""},
+      "交屋尾款":{paid:false,amount:"",method:"",date:""}}},
+    {f:"3F",sold:false},
+    {f:"4F",sold:true,buyer:"張捷訓",price:"310",loan:"現金客，不貸款",warn:"明日簽約",stages:{
+      "訂金":{paid:true,amount:"1萬",method:"現金",date:""},
+      "簽約款":{paid:false,amount:"",method:"",date:""},
+      "用印款":{paid:false,amount:"",method:"",date:""},
+      "完稅款":{paid:false,amount:"",method:"",date:""},
+      "過戶款/貸款":{paid:false,amount:"",method:"現金",date:""},
+      "交屋尾款":{paid:false,amount:"",method:"",date:""}}},
+    {f:"5F",sold:true,buyer:"彭國瑋",price:"310",loan:"淡水一信",warn:"浴室異味問題尚未處理",stages:{
+      "訂金":{paid:true,amount:"",method:"",date:""},
+      "簽約款":{paid:true,amount:"",method:"",date:""},
+      "用印款":{paid:true,amount:"",method:"",date:""},
+      "完稅款":{paid:true,amount:"",method:"",date:""},
+      "過戶款/貸款":{paid:true,amount:"",method:"淡水一信撥款",date:""},
+      "交屋尾款":{paid:false,amount:"",method:"",date:""}}}
+  ]},
+  {id:"A3",label:"A3 ／ 39號",type:"single",private:"6.52",public:"4.11",total:"10.62",
+   floors:[
+    {f:"2F",sold:true,buyer:"鄭小姐",price:"330",loan:"現金客",warn:"",stages:{"訂金":{paid:true,amount:"",method:"",date:""},"簽約款":{paid:true,amount:"",method:"",date:""},"用印款":{paid:true,amount:"",method:"",date:""},"完稅款":{paid:true,amount:"",method:"",date:""},"過戶款/貸款":{paid:true,amount:"",method:"現金",date:""},"交屋尾款":{paid:true,amount:"",method:"",date:""}}},
+    {f:"3F",sold:true,buyer:"王曉葳",price:"338",loan:"淡水一信（貸款230萬）",warn:"",stages:{"訂金":{paid:true,amount:"",method:"",date:""},"簽約款":{paid:true,amount:"",method:"",date:""},"用印款":{paid:true,amount:"",method:"",date:""},"完稅款":{paid:true,amount:"",method:"",date:""},"過戶款/貸款":{paid:true,amount:"230萬",method:"淡水一信",date:""},"交屋尾款":{paid:true,amount:"",method:"",date:""}}},
+    {f:"4F",sold:true,buyer:"張小姐",price:"330",loan:"現金客",warn:"",stages:{"訂金":{paid:true,amount:"",method:"",date:""},"簽約款":{paid:true,amount:"",method:"",date:""},"用印款":{paid:true,amount:"",method:"",date:""},"完稅款":{paid:true,amount:"",method:"",date:""},"過戶款/貸款":{paid:true,amount:"",method:"現金",date:""},"交屋尾款":{paid:true,amount:"",method:"",date:""}}},
+    {f:"5F",sold:true,buyer:"王先生",price:"330",loan:"現金客",warn:"",stages:{"訂金":{paid:true,amount:"",method:"",date:""},"簽約款":{paid:true,amount:"",method:"",date:""},"用印款":{paid:true,amount:"",method:"",date:""},"完稅款":{paid:true,amount:"",method:"",date:""},"過戶款/貸款":{paid:true,amount:"",method:"現金",date:""},"交屋尾款":{paid:true,amount:"",method:"",date:""}}}
+  ]},
+  {id:"A4",label:"A4 ／ 35之1號",type:"double",private:"11.62",public:"7.32",total:"18.94",
+   floors:[
+    {f:"2F",sold:false},
+    {f:"3F",sold:true,buyer:"蔡佩芩",price:"613",loan:"現金客",warn:"",stages:{"訂金":{paid:true,amount:"",method:"",date:""},"簽約款":{paid:true,amount:"",method:"",date:""},"用印款":{paid:true,amount:"",method:"",date:""},"完稅款":{paid:true,amount:"",method:"",date:""},"過戶款/貸款":{paid:true,amount:"",method:"現金",date:""},"交屋尾款":{paid:true,amount:"",method:"",date:""}}},
+    {f:"4F",sold:false},{f:"5F",sold:false}
+  ]},
+  {id:"A5",label:"A5 ／ 37之1號",type:"double",private:"12.32",public:"7.77",total:"20.09",
+   floors:[
+    {f:"2F",sold:false},{f:"3F",sold:false},
+    {f:"4F",sold:true,buyer:"張熙慈",price:"610",loan:"軍人優貸・土銀石門（申請488萬）",warn:"",stages:{
+      "訂金":{paid:true,amount:"",method:"",date:""},
+      "簽約款":{paid:true,amount:"",method:"",date:""},
+      "用印款":{paid:true,amount:"",method:"",date:""},
+      "完稅款":{paid:true,amount:"",method:"",date:""},
+      "過戶款/貸款":{paid:false,amount:"488萬",method:"土銀石門（核貸中）",date:""},
+      "交屋尾款":{paid:false,amount:"",method:"",date:""}}},
+    {f:"5F",sold:false}
+  ]}
+]};
+
+// ▼▼▼ 把你的 Apps Script 網址貼在這裡 ▼▼▼
+const API_URL = "https://script.google.com/macros/s/AKfycbwzRMXIFpiLTrEfKhI_mnOQ79GHKLd6sKKpvxtqXs1e8fLq9DG1GPNpDklu9w6CPsHBHQ/exec";
+// ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
+let data, editTarget=null;
+function deep(x){ return JSON.parse(JSON.stringify(x)); }
+
+async function load(){
+  setSaveHint('⏳ 資料載入中…','#9ca3af');
+  try{
+    const res = await fetch(API_URL);
+    const json = await res.json();
+    if(json && json.units && json.units.length){
+      data = json;
+    } else {
+      data = deep(INIT);
+    }
+  } catch(e){
+    console.warn('無法連線 Google Sheets，使用本機暫存', e);
+    try{ const s=localStorage.getItem('qy_v4_backup'); data=s?JSON.parse(s):deep(INIT); }
+    catch(e2){ data=deep(INIT); }
+    setSaveHint('⚠ 離線模式（無法同步）','#f87171');
+  }
+  render();
+}
+
+async function saveAll(){
+  setSaveHint('⏳ 儲存中…','#fbbf24');
+  data.savedAt = new Date().toISOString();
+  // 本機備份
+  localStorage.setItem('qy_v4_backup', JSON.stringify(data));
+  try{
+    await fetch(API_URL, {
+      method:'POST',
+      body: JSON.stringify(data),
+      headers:{'Content-Type':'application/json'}
+    });
+    updateSaved();
+    showToast('✅ 已同步到 Google Sheets');
+    setSaveHint('已同步 Google Sheets','#9ca3af');
+  } catch(e){
+    showToast('⚠ 網路錯誤，已存本機備份');
+    setSaveHint('⚠ 同步失敗，本機已備份','#f87171');
+  }
+}
+
+function updateSaved(){
+  if(!data.savedAt) return;
+  const d=new Date(data.savedAt);
+  document.getElementById('last-saved').textContent='同步：'+d.toLocaleDateString('zh-TW')+' '+d.toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'});
+}
+function setSaveHint(txt,color){
+  const el=document.getElementById('save-hint');
+  el.textContent=txt; el.style.color=color;
+}
+function markChanged(){
+  setSaveHint('⚠ 有未儲存的變更','#fbbf24');
+}
+function showToast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
+
+// ── RENDER ──
+function render(){
+  const page=document.getElementById('page');
+  page.innerHTML='';
+  data.units.forEach(unit=>{
+    const div=document.createElement('div');
+    div.className='unit-block';
+    div.innerHTML=buildUnit(unit);
+    page.appendChild(div);
+  });
+  updateSaved();
+}
+
+function buildUnit(unit){
+  let rows='';
+  unit.floors.forEach((fl,fi)=>{
+    if(!fl.sold){
+      rows+=`<tr class="buyer-sep">
+        <td class="info-col"><div class="unsold-txt"><span class="floor-badge">${fl.f}</span><span class="area-txt" style="margin-left:4px;">${unit.private}＋${unit.public}＝<b>${unit.total}坪</b></span><br>未售出</div></td>
+        ${STAGES.map(()=>`<td class="check-cell empty"></td>`).join('')}
+      </tr>`;
+      return;
+    }
+    const uid=unit.id;
+    // Row 1: check marks  (above the stage name)
+    rows+=`<tr class="buyer-sep">
+      <td class="info-col" rowspan="5">
+        <div class="info-cell">
+          <span class="floor-badge">${fl.f}</span>
+          <span class="area-txt">${unit.private}＋${unit.public}＝<b>${unit.total}坪</b></span>
+          <span class="buyer-name">${fl.buyer}</span>
+          <span class="price-txt">${fl.price}萬</span>
+          ${fl.loan?`<span class="loan-tag">${fl.loan}</span>`:''}
+          ${fl.warn?`<span class="warn-tag">⚠ ${fl.warn}</span>`:''}
+          <button class="edit-btn" onclick="openModal('${uid}',${fi})">✎ 編輯</button>
+        </div>
+      </td>
+      ${STAGES.map(s=>{
+        const cls=fl.stages[s].paid?'paid':'unpaid';
+        return `<td class="check-cell ${cls}">${fl.stages[s].paid?'✓':''}</td>`;
+      }).join('')}
+    </tr>`;
+    // Row 2: stage names
+    rows+=`<tr>
+      ${STAGES.map(s=>{
+        const cls=fl.stages[s].paid?'paid':'unpaid';
+        return `<td class="name-cell ${cls}">${s}</td>`;
+      }).join('')}
+    </tr>`;
+    // Row 3: 金額
+    rows+=`<tr>
+      <td class="row-lbl">金額</td>
+      ${STAGES.map(s=>{
+        const st=fl.stages[s]; const cls=st.paid?'paid':'unpaid';
+        return `<td class="stage-cell ${cls}"><input value="${st.amount||''}" placeholder="—" onchange="upd('${uid}',${fi},'${s}','amount',this.value)" oninput="markChanged()"></td>`;
+      }).join('')}
+    </tr>`;
+    // Row 4: 付款方式
+    rows+=`<tr>
+      <td class="row-lbl">付款方式</td>
+      ${STAGES.map(s=>{
+        const st=fl.stages[s]; const cls=st.paid?'paid':'unpaid';
+        return `<td class="stage-cell ${cls}"><input value="${st.method||''}" placeholder="—" onchange="upd('${uid}',${fi},'${s}','method',this.value)" oninput="markChanged()"></td>`;
+      }).join('')}
+    </tr>`;
+    // Row 5: 付款日期
+    rows+=`<tr>
+      <td class="row-lbl">付款日期</td>
+      ${STAGES.map(s=>{
+        const st=fl.stages[s]; const cls=st.paid?'paid':'unpaid';
+        return `<td class="stage-cell ${cls}"><input value="${st.date||''}" placeholder="—" onchange="upd('${uid}',${fi},'${s}','date',this.value)" oninput="markChanged()"></td>`;
+      }).join('')}
+    </tr>`;
+  });
+
+  return `<div class="unit-title-row ${unit.type}">
+    <span style="flex:1">${unit.label}</span>
+    <span class="unit-tag">${unit.type==='double'?'雙套房':'單套房'}</span>
+    <span class="area-tag">${unit.private}+${unit.public}=<strong>${unit.total}坪</strong></span>
+  </div>
+  <div class="tbl-wrap"><table>${rows}</table></div>`;
+}
+
+function upd(uid,fi,stage,key,val){
+  data.units.find(u=>u.id===uid).floors[fi].stages[stage][key]=val;
+  markChanged();
+}
+
+// ── MODAL ──
+function openModal(uid,fi){
+  editTarget={uid,fi};
+  const unit=data.units.find(u=>u.id===uid);
+  const fl=unit.floors[fi];
+  document.getElementById('modal-title').textContent=`${unit.label}  ${fl.f}  ／  ${fl.buyer||''}`;
+  document.getElementById('m-buyer').value=fl.buyer||'';
+  document.getElementById('m-price').value=fl.price||'';
+  document.getElementById('m-loan').value=fl.loan||'';
+  document.getElementById('m-warn').value=fl.warn||'';
+
+  document.getElementById('stage-rows').innerHTML=STAGES.map(s=>{
+    const st=fl.stages[s]||{paid:false,amount:'',method:'',date:''};
+    return `<div class="smr ${st.paid?'paid':''}" id="smr-${s.replace('/','_')}">
+      <div class="smr-head">${s}
+        <div class="paid-toggle">
+          <button class="btn-p ${st.paid?'on':''}" onclick="setPaid('${s}',true)">✓ 已付</button>
+          <button class="btn-u ${!st.paid?'on':''}" onclick="setPaid('${s}',false)">未付</button>
+        </div>
+      </div>
+      <div class="smr-fields">
+        <div class="smf"><label>金額</label><input id="sm-a-${s.replace('/','_')}" value="${st.amount||''}"></div>
+        <div class="smf"><label>付款方式</label><input id="sm-m-${s.replace('/','_')}" value="${st.method||''}"></div>
+        <div class="smf"><label>付款日期</label><input id="sm-d-${s.replace('/','_')}" value="${st.date||''}"></div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('modal').classList.remove('hidden');
+}
+
+function setPaid(stage,paid){
+  const key=stage.replace('/','_');
+  const row=document.getElementById('smr-'+key);
+  row.className='smr '+(paid?'paid':'');
+  row.querySelector('.btn-p').className='btn-p '+(paid?'on':'');
+  row.querySelector('.btn-u').className='btn-u '+(!paid?'on':'');
+  row.dataset.paidVal=paid?'1':'0';
+}
+
+function closeModal(){ document.getElementById('modal').classList.add('hidden'); editTarget=null; }
+
+function saveModal(){
+  if(!editTarget) return;
+  const {uid,fi}=editTarget;
+  const fl=data.units.find(u=>u.id===uid).floors[fi];
+  fl.buyer=document.getElementById('m-buyer').value;
+  fl.price=document.getElementById('m-price').value;
+  fl.loan=document.getElementById('m-loan').value;
+  fl.warn=document.getElementById('m-warn').value;
+  STAGES.forEach(s=>{
+    const key=s.replace('/','_');
+    const row=document.getElementById('smr-'+key);
+    const paidVal=row.dataset.paidVal;
+    const paid = paidVal!==undefined ? paidVal==='1' : row.classList.contains('paid');
+    fl.stages[s]={
+      paid,
+      amount:document.getElementById('sm-a-'+key).value,
+      method:document.getElementById('sm-m-'+key).value,
+      date:document.getElementById('sm-d-'+key).value,
+    };
+  });
+  saveAll(); closeModal(); render(); showToast('✅ 已儲存');
+}
+
+document.getElementById('modal').addEventListener('click',e=>{ if(e.target===document.getElementById('modal')) closeModal(); });
+
+load(); // load() 會自動呼叫 render()
+</script>
+</body>
+</html>
