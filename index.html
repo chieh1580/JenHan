@@ -528,38 +528,40 @@
     /* ===== 在售建案 ===== */
     .onsale-section { background: var(--white); }
 
+    .onsale-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 28px;
+    }
+
     .onsale-card {
-      max-width: 480px;
-      margin: 0 auto;
       background: var(--white);
       border: 1px solid var(--gray-200);
       border-radius: var(--radius-lg);
       overflow: hidden;
       box-shadow: var(--shadow);
+      transition: transform var(--transition), box-shadow var(--transition);
     }
 
-    .onsale-placeholder {
+    .onsale-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .onsale-card-img {
       aspect-ratio: 16 / 10;
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      color: rgba(255,255,255,0.6);
+      overflow: hidden;
+      position: relative;
     }
 
-    .onsale-placeholder svg {
-      width: 48px; height: 48px;
-      stroke: rgba(255,255,255,0.4);
-      fill: none;
-      stroke-width: 1.2;
+    .onsale-card-img img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
     }
 
-    .onsale-placeholder span {
-      font-size: 14px;
-      letter-spacing: 2px;
-      font-weight: 600;
+    .onsale-card:hover .onsale-card-img img {
+      transform: scale(1.03);
     }
 
     .onsale-info {
@@ -1257,6 +1259,7 @@
       .featured-info h3 { font-size: 24px; }
       .brand-sub { display: none; }
 
+      .onsale-grid { grid-template-columns: 1fr; max-width: 480px; margin: 0 auto; }
       .works-grid { grid-template-columns: 1fr; max-width: 480px; margin: 0 auto; }
       .news-grid { grid-template-columns: 1fr; max-width: 480px; margin: 0 auto; }
       .cta-section h2 { font-size: 24px; }
@@ -1430,32 +1433,60 @@
           <h2>目前在售建案</h2>
           <p>提供目前銷售中建案資訊，讓購屋者可以快速了解建案特色、區域位置與賞屋諮詢方式。</p>
         </div>
-        <div class="onsale-card">
-          <div class="onsale-placeholder">
-            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg>
-            <span>即將公開</span>
-          </div>
-          <div class="onsale-info">
-            <h3>在售建案即將公開</h3>
-            <div class="onsale-meta">
-              <div class="onsale-meta-row">
-                <span class="onsale-meta-label">區域位置</span>
-                <span class="onsale-meta-value">桃園地區</span>
-              </div>
-              <div class="onsale-meta-row">
-                <span class="onsale-meta-label">產品類型</span>
-                <span class="onsale-meta-value">住宅建案</span>
-              </div>
-              <div class="onsale-meta-row">
-                <span class="onsale-meta-label">銷售狀態</span>
-                <span class="onsale-meta-value"><span class="onsale-status">準備中</span></span>
-              </div>
+        <div class="onsale-grid">
+          <!-- 勤源青崧居 -->
+          <div class="onsale-card">
+            <div class="onsale-card-img">
+              <img src="assets/qingsong-render.jpg" alt="勤源青崧居建案透視圖" loading="lazy">
             </div>
-            <p class="onsale-desc">震瀚廣告將不定期更新目前銷售中建案資訊，提供購屋者了解建案特色、區域位置與賞屋諮詢方式。</p>
-            <a href="projects.html" class="btn-primary">
-              查看在售建案
-              <svg class="arrow-icon" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </a>
+            <div class="onsale-info">
+              <h3>勤源青崧居</h3>
+              <div class="onsale-meta">
+                <div class="onsale-meta-row">
+                  <span class="onsale-meta-label">區域位置</span>
+                  <span class="onsale-meta-value">龍潭區</span>
+                </div>
+                <div class="onsale-meta-row">
+                  <span class="onsale-meta-label">產品類型</span>
+                  <span class="onsale-meta-value">住宅建案</span>
+                </div>
+                <div class="onsale-meta-row">
+                  <span class="onsale-meta-label">銷售狀態</span>
+                  <span class="onsale-meta-value"><span class="onsale-status">銷售中</span></span>
+                </div>
+              </div>
+              <a href="projects.html" class="btn-primary">
+                查看建案資訊
+                <svg class="arrow-icon" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </a>
+            </div>
+          </div>
+          <!-- 富鏵巨蛋捷境 -->
+          <div class="onsale-card">
+            <div class="onsale-card-img">
+              <img src="assets/judanjiejing-render.png" alt="富鏵巨蛋捷境建案透視圖" loading="lazy">
+            </div>
+            <div class="onsale-info">
+              <h3>富鏵巨蛋捷境</h3>
+              <div class="onsale-meta">
+                <div class="onsale-meta-row">
+                  <span class="onsale-meta-label">區域位置</span>
+                  <span class="onsale-meta-value">中壢區</span>
+                </div>
+                <div class="onsale-meta-row">
+                  <span class="onsale-meta-label">產品類型</span>
+                  <span class="onsale-meta-value">住宅建案</span>
+                </div>
+                <div class="onsale-meta-row">
+                  <span class="onsale-meta-label">銷售狀態</span>
+                  <span class="onsale-meta-value"><span class="onsale-status">銷售中</span></span>
+                </div>
+              </div>
+              <a href="projects.html" class="btn-primary">
+                查看建案資訊
+                <svg class="arrow-icon" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </a>
+            </div>
           </div>
         </div>
         <div class="section-footer">
